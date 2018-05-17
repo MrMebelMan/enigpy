@@ -259,7 +259,7 @@ class crackerParallel():
                             #print(subset)
                                     rotor1=rotor(self.subset[0],l,i)
                                     rotor2=rotor(self.subset[1],m,j)
-                                    rotor3=rotor(self.subset[2],n,k)                                                                    
+                                    rotor3=rotor(self.subset[2],n,k)
                                     enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
                                     text=enigmai.EDcrypt(self.ttc)
                                     myscore=self.scorer.score(text)
@@ -293,11 +293,11 @@ class crackerParallel():
                                                     r2shift=0
                                                     if (rotor2.step>=r3shift):
                                                         r2shift=1
-                                                                                          
+
                                                     rotor1=rotor(self.subset[0],l,i)
                                                     rotor2=rotor(self.subset[1],m,(abs(j-r2shift-p)%26))
-                                                    rotor3=rotor(self.subset[2],o,((k+r3shift)%26))                                                                    
-                                                    enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
+                                                    rotor3=rotor(self.subset[2],o,((k+r3shift)%26))
+                                                    enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)
                                                     text=enigmai.EDcrypt(self.ttc)
                                                     myscore=self.scorer.score(text)
                                                         
@@ -457,7 +457,7 @@ class crackerParallel():
                             #print(subset)
                                     rotor1=rotor(self.subset[0],l,i)
                                     rotor2=rotor(self.subset[1],m,j)
-                                    rotor3=rotor(self.subset[2],n,k)                                                                    
+                                    rotor3=rotor(self.subset[2],n,k)
                                     enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
                                     text=enigmai.EDcrypt(self.ttc)
                                     myscore=self.scorer.score(text)
@@ -503,7 +503,7 @@ def finalRing(subset,q):
 def listener(q):
     '''listens for messages on the q, writes to file. '''
 
-    f = open("enigma\\attempt.txt", 'a')
+    f = open("enigma\attempt.txt", 'a')
     start=datetime.now()
     f.write("\n\nSTART: "+format(start, '%H:%M:%S')+"\n\n")
     f.flush()
