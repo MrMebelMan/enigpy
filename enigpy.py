@@ -317,7 +317,12 @@ class crackerParallel():
                                                         #self.q.put(strtowrite)
                                                         '''
                                                         
-                                                        steckerscore,steckerinfo=self.steckerConfig(rotor1,rotor2,rotor3,reflectori,myscore)
+                                                        steckerscore,steckerinfo=self.steckerConfig(rotor1,
+                                                                                                    rotor2,
+                                                                                                    rotor3,
+                                                                                                    reflectori,
+                                                                                                    myscore)
+                                                        
                                                         '''
                                                         #strtowrite="STECKER info"+format(datetime.now(), '%H:%M:%S')
                                                         +"\nORIGINAL Score\n"+str(myscore)+"\nSTECKER Score\n"+str(steckerscore)
@@ -367,8 +372,13 @@ class crackerParallel():
                                                         
     def steckerConfig(self,rotor1,rotor2,rotor3,reflectori,score):
         pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        plugboardi=plugboard({})    
-        #for subset in itertools.combinations("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z", 2):
+        plugboardi=plugboard({})
+        
+        '''
+        for subset in itertools.combinations("A","B","C","D","E","F","G","H","I",
+        "J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z", 2):
+        '''
+        
         letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M",
                    "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
         #letters.remove("")
@@ -456,8 +466,8 @@ class crackerParallel():
                                         topscore=myscore
                                         strtowrite="Score"+str(topscore)
                                         +" Guess: "+text
-                                        +" Grunds: "+str(i)+":"+str(j)+":"+str(k)+" Ring2: "+str(o)+" Ring3: "+str(n)+
-                                        " Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
+                                        +" Grunds: "+str(i)+":"+str(j)+":"+str(k)+" Ring2: "+str(o)+" Ring3: "+str(n)
+                                        +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
                                         +" Ref:"+str(reflectori.typ)+"\n"
                                         self.q.put(strtowrite)                                        
     
