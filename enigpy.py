@@ -93,6 +93,7 @@ class enigma():
             #stecker
             if onecipher in self.plugboard.pairs:
                 onecipher=self.plugboard.pairs.get(onecipher)
+            
             onecipher=self.rotor3.wiring[((pomlist.index(onecipher)+r3pos)%26)]
             onecipher=pomlist[pomlist.index(onecipher)] #out - rotor3.ring  offset ringstellung
             onecipher=self.rotor2.wiring[((self.mapping.get(onecipher)-r3pos+r2pos)%26)]
