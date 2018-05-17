@@ -1,4 +1,4 @@
-mport itertools
+import itertools
 import multiprocessing
 from datetime import datetime
 from math import log10
@@ -75,7 +75,10 @@ class enigma():
                     #print("stepping slow")
                     r1pos+=1
 
-            if (self.rotor3.step==12 and r3pos==12) and (self.rotor3.number=="VI" or self.rotor3.number=="VII" or self.rotor3.number=="VIII"):
+            if ((self.rotor3.step==12 and r3pos==12) and 
+                (self.rotor3.number=="VI" 
+                 or self.rotor3.number=="VII" 
+                 or self.rotor3.number=="VIII")):
                 self.rotor3.step=25
             
             if r3pos>25:
