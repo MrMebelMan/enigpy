@@ -264,7 +264,8 @@ class crackerParallel():
                                     text=enigmai.EDcrypt(self.ttc)
                                     myscore=self.scorer.score(text)
                                     
-                                    if (myscore>topscore) or (myscore>-1900): #-1950 bi1941 #4400 quad
+                                    if (myscore>topscore) or (myscore>-1900):
+                                        #-1950 bi1941 #4400 quad
                                         topscore=myscore
                                         strtowrite=""+format(datetime.now(), '%H:%M:%S')
                                         +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "
@@ -308,8 +309,11 @@ class crackerParallel():
                                                         '''strtowrite=""+format(datetime.now(), '%H:%M:%S')
                                                         +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "
                                                         +text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
-                                                        +" Grunds new: "+str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)+" Ring3: "+str(o)
-                                                        +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number+" Ref:"+str(reflectori.typ)+"\n"
+                                                        +" Grunds new: "+str(i)+":"
+                                                        +str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)
+                                                        +" Ring3: "+str(o)
+                                                        +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
+                                                        +" Ref:"+str(reflectori.typ)+"\n"
                                                         #self.q.put(strtowrite)
                                                         '''
                                                         
@@ -317,9 +321,13 @@ class crackerParallel():
                                                         '''
                                                         #strtowrite="STECKER info"+format(datetime.now(), '%H:%M:%S')
                                                         +"\nORIGINAL Score\n"+str(myscore)+"\nSTECKER Score\n"+str(steckerscore)
-                                                        +"\nGuess: "+text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
-                                                        +" Grunds new: "+str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)+" Ring3: "+str(o)
-                                                        +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number+" Ref:"+str(reflectori.typ)+"\n"
+                                                        +"\nGuess: "+text
+                                                        +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
+                                                        +" Grunds new: "+str(i)+":"
+                                                        +str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)
+                                                        +" Ring3: "+str(o)
+                                                        +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
+                                                        +" Ref:"+str(reflectori.typ)+"\n"
                                                         +"STECKER: "+str(steckerinfo)+"\n\n"
                                                         #self.q.put(strtowrite)
                                                         '''
@@ -340,7 +348,8 @@ class crackerParallel():
 
                                                         #stecker
                                                         
-                                                        if (myscore>-1725 or steckerscore>-1725):#1725 bi1941 #4300 quad
+                                                        if (myscore>-1725 or steckerscore>-1725):
+                                                            #1725 bi1941 #4300 quad
                                                             strtowrite="!!! info"
                                                             +format(datetime.now(), '%H:%M:%S')
                                                             +"\nORIGINAL Score\n"+str(myscore)
@@ -348,7 +357,8 @@ class crackerParallel():
                                                             +"\nGuess: "+text+"\nGrunds original: "
                                                             +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "
                                                             +str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)
-                                                            +" Ring3: "+str(o)+" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
+                                                            +" Ring3: "+str(o)
+                                                            +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
                                                             +" Ref:"+str(reflectori.typ)+"\n"
                                                             +"STECKER: "+str(steckerinfo)+"\n\n"
                                                             self.q.put(strtowrite)
