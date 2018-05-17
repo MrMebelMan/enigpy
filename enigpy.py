@@ -275,10 +275,17 @@ class crackerParallel():
                                         
                                         self.q.put(strtowrite)
                                         
-                                        #if (myscore>-900): #4350 quad
-                                            #strtowrite="\n???\n"+format(datetime.now(), '%H:%M:%S')+"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "+text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)+" Ring3: "+str("0")+" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number+" Ref:"+str(reflectori.typ)+"\n"
-                                            #self.q.put(strtowrite)
-                                            #strtowrite=""
+                                        '''
+                                        if (myscore>-900): #4350 quad
+                                            
+                                            strtowrite="\n???\n"+format(datetime.now(), '%H:%M:%S')
+                                            +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "
+                                            +text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)+" Ring3: "+str("0")
+                                            +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
+                                            +" Ref:"+str(reflectori.typ)+"\n"
+                                            self.q.put(strtowrite)
+                                        '''
+                                        
                                         for p in range(26):
                                             for o in range(26):
                                                     r3shift=0+o
