@@ -298,12 +298,24 @@ class crackerParallel():
                                                         bestoftherun=topscore
                                                         #stecker
                                                         
-                                                        #strtowrite=""+format(datetime.now(), '%H:%M:%S')+"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "+text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)+" Grunds new: "+str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)+" Ring3: "+str(o)+" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number+" Ref:"+str(reflectori.typ)+"\n"
+                                                        '''strtowrite=""+format(datetime.now(), '%H:%M:%S')
+                                                        +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "
+                                                        +text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
+                                                        +" Grunds new: "+str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)+" Ring3: "+str(o)
+                                                        +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number+" Ref:"+str(reflectori.typ)+"\n"
                                                         #self.q.put(strtowrite)
+                                                        '''
                                                         
                                                         steckerscore,steckerinfo=self.steckerConfig(rotor1,rotor2,rotor3,reflectori,myscore)
-                                                        #strtowrite="STECKER info"+format(datetime.now(), '%H:%M:%S')+"\nORIGINAL Score\n"+str(myscore)+"\nSTECKER Score\n"+str(steckerscore)+"\nGuess: "+text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)+" Grunds new: "+str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)+" Ring3: "+str(o)+" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number+" Ref:"+str(reflectori.typ)+"\n"+"STECKER: "+str(steckerinfo)+"\n\n"
+                                                        '''
+                                                        #strtowrite="STECKER info"+format(datetime.now(), '%H:%M:%S')
+                                                        +"\nORIGINAL Score\n"+str(myscore)+"\nSTECKER Score\n"+str(steckerscore)
+                                                        +"\nGuess: "+text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
+                                                        +" Grunds new: "+str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)+" Ring3: "+str(o)
+                                                        +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number+" Ref:"+str(reflectori.typ)+"\n"
+                                                        +"STECKER: "+str(steckerinfo)+"\n\n"
                                                         #self.q.put(strtowrite)
+                                                        '''
                                                         
                                                         if (steckerscore>bestoftherun):
                                                             bestoftherun=steckerscore
@@ -434,7 +446,14 @@ class crackerParallel():
     
 def final(subset,q):
     #insert the scrambled text
-    scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS"
+    scrambled="""KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSA
+    ZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSK
+    EUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZ
+    UNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZD
+    PNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRM
+    KNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHM
+    IOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHA
+    RLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS"""
     scorer=ngram_score('enigma\\grams\\german_bigrams1941.txt')
     crackerF=crackerParallel(scrambled,scorer,subset,q)
     crackerF.finalMP()
@@ -442,7 +461,14 @@ def final(subset,q):
     
 def finalRing(subset,q):
     #insert the scrambled text
-    scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS"
+    scrambled="""KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSA
+    ZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSK
+    EUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZ
+    UNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZD
+    PNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRM
+    KNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHM
+    IOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHA
+    RLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS"""
     scorer=ngram_score('enigma\\grams\\german_quadgrams.txt')
     crackerF=crackerParallel(scrambled,scorer,subset,q)
     crackerF.finalRing()
