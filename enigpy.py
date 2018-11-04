@@ -50,7 +50,6 @@ class enigma():
         r2pos=self.rotor2.grund
         r3pos=self.rotor3.grund
         scrambled=""
-
         
         for letter in text:
             onecipher=""
@@ -96,7 +95,6 @@ class enigma():
             #stecker
             if onecipher in self.plugboard.pairs:
                 onecipher=self.plugboard.pairs.get(onecipher)
-            
             onecipher=self.rotor3.wiring[((pomlist.index(onecipher)+r3pos)%26)]
             onecipher=pomlist[pomlist.index(onecipher)] #out - rotor3.ring  offset ringstellung
             onecipher=self.rotor2.wiring[((self.mapping.get(onecipher)-r3pos+r2pos)%26)]
@@ -203,7 +201,7 @@ class plugboard():
             pom[key]=value
             pom[value]=key
         return pom
-    
+
 class cracker():
     
     def __init__(self,textToCrack):
@@ -217,8 +215,7 @@ class cracker():
         for letter in self.text:
             list[letter] += 1
             
-        return list    
-
+        return list
 
 #cracker suitable for parallel computation
 class crackerParallel():
@@ -239,8 +236,7 @@ class crackerParallel():
         return list
                             
     def finalMP(self):
-        #plugboardi=plugboard({"A":"B","C":"D","E":"F","G":"H","I":"J",
-                            #"K":"L","M":"N","O":"P","Q":"R","S":"T"})
+        #plugboardi=plugboard({"A":"B","C":"D","E":"F","G":"H","I":"J","K":"L","M":"N","O":"P","Q":"R","S":"T"})
         plugboardi=plugboard({})
         bestoftherun=-10000
         botrstring=""
@@ -266,16 +262,10 @@ class crackerParallel():
                                     
                                     if (myscore>topscore) or (myscore>-1900):
                                         #-1950 bi1941 #4400 quad
-                                        topscore=myscore
-                                        strtowrite=""+format(datetime.now(), '%H:%M:%S')
-                                        +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "
-                                        +text+"\nGrunds original: "
-                                        +str(i)+":"+str(j)+":"+str(k)+" Ring3: "+str("0")
-                                        +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
-                                        +" Ref:"+str(reflectori.typ)+"\n"
-                                        
-                                        self.q.put(strtowrite)
-                                        
+                                        topscore=myscore                 
+                                        strtowrite="a "+format(datetime.now(), '%H:%M:%S')+"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "+text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)+" Ring3: "+str("0")+" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number+" Ref:"+str(reflectori.typ)+"\n"
+                                        self.q.put(strtowrite)                                                                                                             
+
                                         '''
                                         if (myscore>-900): #4350 quad
                                             
@@ -373,7 +363,7 @@ class crackerParallel():
     def steckerConfig(self,rotor1,rotor2,rotor3,reflectori,score):
         pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         plugboardi=plugboard({})
-        
+
         '''
         for subset in itertools.combinations("A","B","C","D","E","F","G","H","I",
         "J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z", 2):
@@ -469,41 +459,25 @@ class crackerParallel():
                                         +" Grunds: "+str(i)+":"+str(j)+":"+str(k)+" Ring2: "+str(o)+" Ring3: "+str(n)
                                         +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
                                         +" Ref:"+str(reflectori.typ)+"\n"
-                                        self.q.put(strtowrite)                                        
-    
+                                        self.q.put(strtowrite)
 def final(subset,q):
     #insert the scrambled text
-    scrambled="""KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSA
-    ZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSK
-    EUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZ
-    UNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZD
-    PNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRM
-    KNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHM
-    IOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHA
-    RLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS"""
-    scorer=ngram_score('enigma\\grams\\german_bigrams1941.txt')
+    scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS"
+    scorer=ngram_score('grams/german_monograms.txt')
     crackerF=crackerParallel(scrambled,scorer,subset,q)
     crackerF.finalMP()
-    #q.put(cracker7mp.seventhMP())
-    
+
 def finalRing(subset,q):
     #insert the scrambled text
-    scrambled="""KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSA
-    ZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSK
-    EUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZ
-    UNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZD
-    PNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRM
-    KNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHM
-    IOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHA
-    RLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS"""
-    scorer=ngram_score('enigma\\grams\\german_quadgrams.txt')
+    scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS"
+    scorer=ngram_score('grams/german_quadgrams.txt')
     crackerF=crackerParallel(scrambled,scorer,subset,q)
     crackerF.finalRing()
-    
+
 def listener(q):
     '''listens for messages on the q, writes to file. '''
 
-    f = open("enigma\attempt.txt", 'a')
+    f = open("attempt.txt", 'a')
     start=datetime.now()
     f.write("\n\nSTART: "+format(start, '%H:%M:%S')+"\n\n")
     f.flush()
@@ -529,7 +503,7 @@ if __name__ == "__main__":
     
     manager = multiprocessing.Manager()
     q = manager.Queue()
-    pool = multiprocessing.Pool(multiprocessing.cpu_count()-noteating) #use logical cores 1-12
+    pool = multiprocessing.Pool(multiprocessing.cpu_count()-noteating) #use logical cores
     
     watcher = pool.apply_async(listener, (q,))
 
@@ -537,8 +511,7 @@ if __name__ == "__main__":
     
     #if we want to chceck walzen subsets or just speed computation across cores without walzens
     walzen=True
-    
-    
+
     if (walzen):
         for subset in itertools.permutations(walzennumbers, 3):
             job = pool.apply_async(final, (subset,q))
@@ -553,7 +526,7 @@ if __name__ == "__main__":
             
     for job in jobs: 
         job.get()
-            
+    
     q.put('kill')
     pool.close()
     pool.join()
