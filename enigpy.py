@@ -234,9 +234,140 @@ class crackerParallel():
         for letter in self.text:
             list[letter] += 1         
         return list
+
+#there are two possible methods to do brute force + hill-climbing. Each comprises of several steps
+#
+#Method #1:
+#1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) using monograms. Combinations: 2 109 120
+#2nd step: brute force fastest (3rd) and middle (2nd) ring settings (26^2) using monograms. Combinations: 676
+#3rd step: Hill-climb steckers using trigrams (possibly bigrams/quadgrams).Combinations: 150 738 274 937 250 [26!/(6!*10!*2^10)] = not feasible to brute force.
+#
+#Method #2 (much slower due to 1st step):
+#1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) + fastest (3rd) ring (26) using monograms. Combinations: 54 837 120
+#2nd step: Hill-climb first few (~3-4) steckers using monograms. Combinations: 3 453 450 - 164 038 875
+#3rd step: Hill-climb next few (~3-4) steckers using bigrams. Combinations: 3 453 450 - 164 038 875
+#4th step: Hill-climb last few (~2-3) steckers using trigrams. Combinations: 44 850 -  3 453 450
+#                           
+    def ultimate_MP_method_1_1st_step(self): 
+        #1st step is to find out the plausible walzen and ring settings candidates for next steps using monograms
+        plugboardi=plugboard({})
+        bestoftherun=-10000
+        botrstring=""
+        topscore=-10000
+        for r in range(2):
+            if r==0:
+                reflectori=reflector("B")
+            else:
+                reflectori=reflector("C")
+            for i in range(26):
+                for j in range(26):
+                    for k in range    
+                        rotor1=rotor(self.subset[0],0,i)  #slowest, left-most
+                        rotor2=rotor(self.subset[1],0,j)  #middle
+                        rotor3=rotor(self.subset[2],0,k)  #fastest, right-most
+                        enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
+                        text=enigmai.EDcrypt(self.ttc)
+                        myscore=self.scorer.score(text)
+                        
+                        if (myscore>topscore) or (myscore>-1900):
+                            #-1950 bi1941 #4400 quad
+                            topscore=myscore
+                            strtowrite="a "+format(datetime.now(), '%H:%M:%S')\
+                            +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "+text\
+                            +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)\
+                            +" Ring3: "+str("0")+" Wheels: "\
+                            +rotor1.number+":"+rotor2.number+":"+rotor3.number\
+                            +" Ref:"+str(reflectori.typ)+"\n"
+                            self.q.put(strtowrite)                                                                                                             
                             
-    def ultimate_MP_1st_step(self):
-        #1st step is to find out the plausible walzen and ring settings candidates using monograms for next steps
+                            #2nd step is to test right-most and middle rotor combinations for the best scored ones
+                            for x in range(26):
+                                for y in range(26):
+                                        r3shift=0+x
+                                        r2shift=0
+                                        if (rotor2.step>=r3shift):
+                                            r2shift=1
+
+                                        rotor1=rotor(self.subset[0],0,i)
+                                        rotor2=rotor(self.subset[1],0,(abs(j-r2shift-x)%26))
+                                        rotor3=rotor(self.subset[2],y,((k+r3shift)%26))
+                                        enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)
+                                        text=enigmai.EDcrypt(self.ttc)
+                                        myscore=self.scorer.score(text)
+
+                                        #3rd step is Hill-climbing steckers using trigrams
+                                        if (myscore>topscore):
+                                            topscore=myscore
+                                            bestoftherun=topscore
+                                            #stecker
+                                            
+                                            '''strtowrite=""+format(datetime.now(), '%H:%M:%S')
+                                            +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "
+                                            +text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
+                                            +" Grunds new: "+str(i)+":"
+                                            +str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)
+                                            +" Ring3: "+str(o)
+                                            +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
+                                            +" Ref:"+str(reflectori.typ)+"\n"
+                                            #self.q.put(strtowrite)
+                                            '''
+                                            
+                                            steckerscore,steckerinfo=self.steckerConfig(rotor1,
+                                                                                        rotor2,
+                                                                                        rotor3,
+                                                                                        reflectori,
+                                                                                        myscore)
+                                            
+                                            '''
+                                            #strtowrite="STECKER info"+format(datetime.now(), '%H:%M:%S')
+                                            +"\nORIGINAL Score\n"+str(myscore)+"\nSTECKER Score\n"+str(steckerscore)
+                                            +"\nGuess: "+text
+                                            +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
+                                            +" Grunds new: "+str(i)+":"
+                                            +str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)
+                                            +" Ring3: "+str(o)
+                                            +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
+                                            +" Ref:"+str(reflectori.typ)+"\n"
+                                            +"STECKER: "+str(steckerinfo)+"\n\n"
+                                            #self.q.put(strtowrite)
+                                            '''
+                                            
+                                            if (steckerscore>bestoftherun):
+                                                bestoftherun=steckerscore
+                                                botrstring="BOTR info "\
+                                                +format(datetime.now(), '%H:%M:%S')\
+                                                +"\nORIGINAL Score\n"+str(myscore)\
+                                                +"\nSTECKER Score\n"+str(steckerscore)\
+                                                +"\nGuess: "+text+"\nGrunds original: "\
+                                                +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
+                                                +str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
+                                                +" Ring3: "+str(o)+" Wheels: "\
+                                                +rotor1.number+":"+rotor2.number+":"+rotor3.number\
+                                                +" Ref:"+str(reflectori.typ)+"\n"\
+                                                +"STECKER: "+str(steckerinfo)+"\n\n"
+
+                                            #stecker
+                                            
+                                            if (myscore>-1725 or steckerscore>-1725):
+                                                #1725 bi1941 #4300 quad
+                                                strtowrite="!!! info"\
+                                                +format(datetime.now(), '%H:%M:%S')\
+                                                +"\nORIGINAL Score\n"+str(myscore)\
+                                                +"\nSTECKER Score\n"+str(steckerscore)\
+                                                +"\nGuess: "+text+"\nGrunds original: "\
+                                                +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
+                                                +str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
+                                                +" Ring3: "+str(o)\
+                                                +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number\
+                                                +" Ref:"+str(reflectori.typ)+"\n"\
+                                                +"STECKER: "+str(steckerinfo)+"\n\n"
+
+                                                self.q.put(strtowrite)
+        strtowrite="BOTR: "+str(bestoftherun)+"\n"+str(botrstring)
+        self.q.put(strtowrite)                          
+
+    def ultimate_MP_method2_1st_step(self):
+        #1st step is to find out the plausible walzen and ring settings candidates for next steps using monograms
         #plugboardi=plugboard({"A":"B","C":"D","E":"F","G":"H","I":"J","K":"L","M":"N","O":"P","Q":"R","S":"T"})
         plugboardi=plugboard({})
         bestoftherun=-10000
@@ -250,122 +381,120 @@ class crackerParallel():
             for i in range(26):
                 for j in range(26):
                     for k in range(26):
-                        for l in range(1):
-                            for m in range(1):
-                                for n in range(1):
+                        for x in range(1):
                             #print(subset)
-                                    rotor1=rotor(self.subset[0],l,i)
-                                    rotor2=rotor(self.subset[1],m,j)
-                                    rotor3=rotor(self.subset[2],n,k)
-                                    enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
-                                    text=enigmai.EDcrypt(self.ttc)
-                                    myscore=self.scorer.score(text)
+                            rotor1=rotor(self.subset[0],0,i) #slowest, left-most
+                            rotor2=rotor(self.subset[1],0,j) #middle
+                            rotor3=rotor(self.subset[2],x,k) #fastest, right-most
+                            enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
+                            text=enigmai.EDcrypt(self.ttc)
+                            myscore=self.scorer.score(text)
                                     
-                                    if (myscore>topscore) or (myscore>-1900):
-                                        #-1950 bi1941 #4400 quad
-                                        topscore=myscore
-                                        strtowrite="a "+format(datetime.now(), '%H:%M:%S')\
-                                        +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "+text\
-                                        +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)\
-                                        +" Ring3: "+str("0")+" Wheels: "\
-                                        +rotor1.number+":"+rotor2.number+":"+rotor3.number\
-                                        +" Ref:"+str(reflectori.typ)+"\n"
-                                        self.q.put(strtowrite)                                                                                                             
+                            if (myscore>topscore) or (myscore>-1900):
+                                #-1950 bi1941 #4400 quad
+                                topscore=myscore
+                                strtowrite="a "+format(datetime.now(), '%H:%M:%S')\
+                                +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "+text\
+                                +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)\
+                                +" Ring3: "+str("0")+" Wheels: "\
+                                +rotor1.number+":"+rotor2.number+":"+rotor3.number\
+                                +" Ref:"+str(reflectori.typ)+"\n"
+                                self.q.put(strtowrite)                                                                                                             
 
-                                        '''
-                                        if (myscore>-900): #4350 quad
-                                            
-                                            strtowrite="\n???\n"+format(datetime.now(), '%H:%M:%S')
-                                            +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "
-                                            +text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)+" Ring3: "+str("0")
-                                            +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
-                                            +" Ref:"+str(reflectori.typ)+"\n"
-                                            self.q.put(strtowrite)
-                                        '''
-                                        
-                                        for p in range(26):
-                                            for o in range(26):
-                                                    r3shift=0+o
-                                                    r2shift=0
-                                                    if (rotor2.step>=r3shift):
-                                                        r2shift=1
+                                '''
+                                if (myscore>-900): #4350 quad
+                                    
+                                    strtowrite="\n???\n"+format(datetime.now(), '%H:%M:%S')
+                                    +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "
+                                    +text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)+" Ring3: "+str("0")
+                                    +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
+                                    +" Ref:"+str(reflectori.typ)+"\n"
+                                    self.q.put(strtowrite)
+                                '''
+                                
+                                for p in range(26):
+                                    for o in range(26):
+                                            r3shift=0+o
+                                            r2shift=0
+                                            if (rotor2.step>=r3shift):
+                                                r2shift=1
 
-                                                    rotor1=rotor(self.subset[0],l,i)
-                                                    rotor2=rotor(self.subset[1],m,(abs(j-r2shift-p)%26))
-                                                    rotor3=rotor(self.subset[2],o,((k+r3shift)%26))
-                                                    enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)
-                                                    text=enigmai.EDcrypt(self.ttc)
-                                                    myscore=self.scorer.score(text)
-                                                        
-                                                    if (myscore>topscore):
-                                                        topscore=myscore
-                                                        bestoftherun=topscore
-                                                        #stecker
-                                                        
-                                                        '''strtowrite=""+format(datetime.now(), '%H:%M:%S')
-                                                        +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "
-                                                        +text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
-                                                        +" Grunds new: "+str(i)+":"
-                                                        +str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)
-                                                        +" Ring3: "+str(o)
-                                                        +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
-                                                        +" Ref:"+str(reflectori.typ)+"\n"
-                                                        #self.q.put(strtowrite)
-                                                        '''
-                                                        
-                                                        steckerscore,steckerinfo=self.steckerConfig(rotor1,
-                                                                                                    rotor2,
-                                                                                                    rotor3,
-                                                                                                    reflectori,
-                                                                                                    myscore)
-                                                        
-                                                        '''
-                                                        #strtowrite="STECKER info"+format(datetime.now(), '%H:%M:%S')
-                                                        +"\nORIGINAL Score\n"+str(myscore)+"\nSTECKER Score\n"+str(steckerscore)
-                                                        +"\nGuess: "+text
-                                                        +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
-                                                        +" Grunds new: "+str(i)+":"
-                                                        +str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)
-                                                        +" Ring3: "+str(o)
-                                                        +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
-                                                        +" Ref:"+str(reflectori.typ)+"\n"
-                                                        +"STECKER: "+str(steckerinfo)+"\n\n"
-                                                        #self.q.put(strtowrite)
-                                                        '''
-                                                        
-                                                        if (steckerscore>bestoftherun):
-                                                            bestoftherun=steckerscore
-                                                            botrstring="BOTR info "\
-                                                            +format(datetime.now(), '%H:%M:%S')\
-                                                            +"\nORIGINAL Score\n"+str(myscore)\
-                                                            +"\nSTECKER Score\n"+str(steckerscore)\
-                                                            +"\nGuess: "+text+"\nGrunds original: "\
-                                                            +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
-                                                            +str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
-                                                            +" Ring3: "+str(o)+" Wheels: "\
-                                                            +rotor1.number+":"+rotor2.number+":"+rotor3.number\
-                                                            +" Ref:"+str(reflectori.typ)+"\n"\
-                                                            +"STECKER: "+str(steckerinfo)+"\n\n"
+                                            rotor1=rotor(self.subset[0],l,i)
+                                            rotor2=rotor(self.subset[1],m,(abs(j-r2shift-p)%26))
+                                            rotor3=rotor(self.subset[2],o,((k+r3shift)%26))
+                                            enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)
+                                            text=enigmai.EDcrypt(self.ttc)
+                                            myscore=self.scorer.score(text)
+                                                
+                                            if (myscore>topscore):
+                                                topscore=myscore
+                                                bestoftherun=topscore
+                                                #stecker
+                                                
+                                                '''strtowrite=""+format(datetime.now(), '%H:%M:%S')
+                                                +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "
+                                                +text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
+                                                +" Grunds new: "+str(i)+":"
+                                                +str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)
+                                                +" Ring3: "+str(o)
+                                                +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
+                                                +" Ref:"+str(reflectori.typ)+"\n"
+                                                #self.q.put(strtowrite)
+                                                '''
+                                                
+                                                steckerscore,steckerinfo=self.steckerConfig(rotor1,
+                                                                                            rotor2,
+                                                                                            rotor3,
+                                                                                            reflectori,
+                                                                                            myscore)
+                                                
+                                                '''
+                                                #strtowrite="STECKER info"+format(datetime.now(), '%H:%M:%S')
+                                                +"\nORIGINAL Score\n"+str(myscore)+"\nSTECKER Score\n"+str(steckerscore)
+                                                +"\nGuess: "+text
+                                                +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
+                                                +" Grunds new: "+str(i)+":"
+                                                +str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)
+                                                +" Ring3: "+str(o)
+                                                +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
+                                                +" Ref:"+str(reflectori.typ)+"\n"
+                                                +"STECKER: "+str(steckerinfo)+"\n\n"
+                                                #self.q.put(strtowrite)
+                                                '''
+                                                
+                                                if (steckerscore>bestoftherun):
+                                                    bestoftherun=steckerscore
+                                                    botrstring="BOTR info "\
+                                                    +format(datetime.now(), '%H:%M:%S')\
+                                                    +"\nORIGINAL Score\n"+str(myscore)\
+                                                    +"\nSTECKER Score\n"+str(steckerscore)\
+                                                    +"\nGuess: "+text+"\nGrunds original: "\
+                                                    +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
+                                                    +str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
+                                                    +" Ring3: "+str(o)+" Wheels: "\
+                                                    +rotor1.number+":"+rotor2.number+":"+rotor3.number\
+                                                    +" Ref:"+str(reflectori.typ)+"\n"\
+                                                    +"STECKER: "+str(steckerinfo)+"\n\n"
 
-                                                        #stecker
-                                                        
-                                                        if (myscore>-1725 or steckerscore>-1725):
-                                                            #1725 bi1941 #4300 quad
-                                                            strtowrite="!!! info"\
-                                                            +format(datetime.now(), '%H:%M:%S')\
-                                                            +"\nORIGINAL Score\n"+str(myscore)\
-                                                            +"\nSTECKER Score\n"+str(steckerscore)\
-                                                            +"\nGuess: "+text+"\nGrunds original: "\
-                                                            +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
-                                                            +str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
-                                                            +" Ring3: "+str(o)\
-                                                            +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number\
-                                                            +" Ref:"+str(reflectori.typ)+"\n"\
-                                                            +"STECKER: "+str(steckerinfo)+"\n\n"
+                                                #stecker
+                                                
+                                                if (myscore>-1725 or steckerscore>-1725):
+                                                    #1725 bi1941 #4300 quad
+                                                    strtowrite="!!! info"\
+                                                    +format(datetime.now(), '%H:%M:%S')\
+                                                    +"\nORIGINAL Score\n"+str(myscore)\
+                                                    +"\nSTECKER Score\n"+str(steckerscore)\
+                                                    +"\nGuess: "+text+"\nGrunds original: "\
+                                                    +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
+                                                    +str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
+                                                    +" Ring3: "+str(o)\
+                                                    +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number\
+                                                    +" Ref:"+str(reflectori.typ)+"\n"\
+                                                    +"STECKER: "+str(steckerinfo)+"\n\n"
 
-                                                            self.q.put(strtowrite)
+                                                    self.q.put(strtowrite)
         strtowrite="BOTR: "+str(bestoftherun)+"\n"+str(botrstring)
-        self.q.put(strtowrite)                                                    
+        self.q.put(strtowrite)                                                               
                                                         
     def steckerConfig(self,rotor1,rotor2,rotor3,reflectori,score):
         pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
