@@ -237,16 +237,23 @@ class crackerParallel():
 
 #there are two possible methods to do brute force + hill-climbing. Each comprises of several steps
 #
-#Method #1:
-#1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) using monograms. Combinations: 2 109 120
-#2nd step: brute force fastest (3rd) and middle (2nd) ring settings (26^2) using monograms. Combinations: 676
-#3rd step: Hill-climb steckers using trigrams (possibly bigrams/quadgrams).Combinations: 150 738 274 937 250 [26!/(6!*10!*2^10)] = not feasible to brute force.
+# Method #1:
+# 1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) using monograms. 
+# Combinations: 2 109 120
+# 2nd step: brute force fastest (3rd) and middle (2nd) ring settings (26^2) using monograms.
+# Combinations: 676
+# 3rd step: Hill-climb steckers using trigrams (possibly bigrams/quadgrams).
+# Combinations: 150 738 274 937 250 [26!/(6!*10!*2^10)] = not feasible to brute force.
 #
-#Method #2 (much slower due to 1st step):
-#1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) + fastest (3rd) ring (26) using monograms. Combinations: 54 837 120
-#2nd step: Hill-climb first few (~3-4) steckers using monograms. Combinations: 3 453 450 - 164 038 875
-#3rd step: Hill-climb next few (~3-4) steckers using bigrams. Combinations: 3 453 450 - 164 038 875
-#4th step: Hill-climb last few (~2-3) steckers using trigrams. Combinations: 44 850 -  3 453 450
+# Method #2 (much slower due to 1st step):
+# 1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) + fastest (3rd) ring (26) using monograms.
+# Combinations: 54 837 120
+# 2nd step: Hill-climb first few (~3-4) steckers using monograms. 
+# Combinations: 3 453 450 - 164 038 875
+# 3rd step: Hill-climb next few (~3-4) steckers using bigrams. 
+# Combinations: 3 453 450 - 164 038 875
+# 4th step: Hill-climb last few (~2-3) steckers using trigrams. 
+# Combinations: 44 850 -  3 453 450
 #                           
     def ultimate_MP_method_1_1st_step(self): 
         #1st step is to find out the plausible walzen and ring settings candidates for next steps using monograms
@@ -261,7 +268,7 @@ class crackerParallel():
                 reflectori=reflector("C")
             for i in range(26):
                 for j in range(26):
-                    for k in range    
+                    for k in range(26):
                         rotor1=rotor(self.subset[0],0,i)  #slowest, left-most
                         rotor2=rotor(self.subset[1],0,j)  #middle
                         rotor3=rotor(self.subset[2],0,k)  #fastest, right-most
@@ -341,7 +348,7 @@ class crackerParallel():
                                                 +"\nGuess: "+text+"\nGrunds original: "\
                                                 +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
                                                 +str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
-                                                +" Ring3: "+str(o)+" Wheels: "\
+                                                +" Ring3: "+str(x)+" Wheels: "\
                                                 +rotor1.number+":"+rotor2.number+":"+rotor3.number\
                                                 +" Ref:"+str(reflectori.typ)+"\n"\
                                                 +"STECKER: "+str(steckerinfo)+"\n\n"
@@ -357,7 +364,7 @@ class crackerParallel():
                                                 +"\nGuess: "+text+"\nGrunds original: "\
                                                 +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
                                                 +str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
-                                                +" Ring3: "+str(o)\
+                                                +" Ring3: "+str(x)\
                                                 +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number\
                                                 +" Ref:"+str(reflectori.typ)+"\n"\
                                                 +"STECKER: "+str(steckerinfo)+"\n\n"
@@ -598,14 +605,14 @@ class crackerParallel():
                                         self.q.put(strtowrite)
 def final(subset,q):
     #insert the scrambled text
-    scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS"
+    scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS" 
     scorer=ngram_score('grams/german_monograms.txt')
     crackerF=crackerParallel(scrambled,scorer,subset,q)
-    crackerF.ultimate_MP_1st_step()
+    crackerF.ultimate_MP_method_1_1st_step()
 
 def finalRing(subset,q):
     #insert the scrambled text
-    scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS"
+    scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS" 
     scorer=ngram_score('grams/german_quadgrams.txt')
     crackerF=crackerParallel(scrambled,scorer,subset,q)
     crackerF.finalRing()
