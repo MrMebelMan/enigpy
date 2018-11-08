@@ -1,3 +1,4 @@
+import collections
 import itertools
 import multiprocessing
 from datetime import datetime
@@ -28,6 +29,18 @@ class ngram_score(object):
             if text[i:i+self.L] in self.ngrams: score += ngrams(text[i:i+self.L])
             else: score += self.floor
         return score
+
+    def icscorer(self,text):
+        icscore=0
+
+        temp=collections.Counter(text)
+        
+        for key,value in temp.items():
+            icscore+=value*(value-1)
+  
+        icscore=icscore/((len(text))*(len(text)-1))
+
+        return icscore
 
 class enigma():
     mapping = {}
@@ -238,15 +251,15 @@ class crackerParallel():
 #there are two possible methods to do brute force + hill-climbing. Each comprises of several steps
 #
 # Method #1:
-# 1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) using monograms. 
+# 1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) using Index of Coincidence (IC). 
 # Combinations: 2 109 120
-# 2nd step: brute force fastest (3rd) and middle (2nd) ring settings (26^2) using monograms.
+# 2nd step: brute force fastest (3rd) and middle (2nd) ring settings (26^2) using IC.
 # Combinations: 676
 # 3rd step: Hill-climb steckers using trigrams (possibly bigrams/quadgrams).
 # Combinations: 150 738 274 937 250 [26!/(6!*10!*2^10)] = not feasible to brute force.
 #
 # Method #2 (much slower due to 1st step):
-# 1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) + fastest (3rd) ring (26) using monograms.
+# 1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) + fastest (3rd) ring (26) using IC.
 # Combinations: 54 837 120
 # 2nd step: Hill-climb first few (~3-4) steckers using monograms. 
 # Combinations: 3 453 450 - 164 038 875
@@ -255,12 +268,23 @@ class crackerParallel():
 # 4th step: Hill-climb last few (~2-3) steckers using trigrams. 
 # Combinations: 44 850 -  3 453 450
 #                           
-    def ultimate_MP_method_1_1st_step(self): 
-        #1st step is to find out the plausible walzen and ring settings candidates for next steps using monograms
+#Index of Coincidence (IC):
+#Random text, that is where all letters are present with nearly the same frequency, will have an IC 
+#‘score’ of 1/26 or 0.03846. If we measure the IC score of plain Enigma text it can be up to around 
+#0.05 to 0.07, depending on the actual frequencies of the letters in the plain message. German IC = 0.0762
+#
+
+    def ultimate_MP_method_1(self): 
+        #1st step is to find out the plausible walzen and ring settings candidates for next steps using IC
+        messagelenght=len(self.ttc)
+        ic=0
+        topic=0
+
         plugboardi=plugboard({})
         bestoftherun=-10000
+        myscore=-1000
         botrstring=""
-        topscore=-10000
+
         for r in range(2):
             if r==0:
                 reflectori=reflector("B")
@@ -274,11 +298,11 @@ class crackerParallel():
                         rotor3=rotor(self.subset[2],0,k)  #fastest, right-most
                         enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
                         text=enigmai.EDcrypt(self.ttc)
-                        myscore=self.scorer.score(text)
+                        myic=self.scorer.icscorer(text)
+                        #myscore=self.scorer_mono.score(text) #in case we'd need monograms (but we don't at this moment)
                         
-                        if (myscore>topscore) or (myscore>-1900):
-                            #-1950 bi1941 #4400 quad
-                            topscore=myscore
+                        if (myic>ic) or (ic>0.07):
+                            topic=myic
                             strtowrite="a "+format(datetime.now(), '%H:%M:%S')\
                             +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "+text\
                             +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)\
@@ -300,14 +324,16 @@ class crackerParallel():
                                         rotor3=rotor(self.subset[2],y,((k+r3shift)%26))
                                         enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)
                                         text=enigmai.EDcrypt(self.ttc)
-                                        myscore=self.scorer.score(text)
+
+                                        myic=self.scorer.icscorer(text)
 
                                         #3rd step is Hill-climbing steckers using trigrams
-                                        if (myscore>topscore):
-                                            topscore=myscore
-                                            bestoftherun=topscore
+                                        if (myic>topic):
+                                            topic=myic
+
+                                            #bestoftherun=topscore #nope
                                             #stecker
-                                            
+                                           
                                             '''strtowrite=""+format(datetime.now(), '%H:%M:%S')
                                             +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "
                                             +text+"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
@@ -319,11 +345,11 @@ class crackerParallel():
                                             #self.q.put(strtowrite)
                                             '''
                                             
-                                            steckerscore,steckerinfo=self.steckerConfig(rotor1,
-                                                                                        rotor2,
-                                                                                        rotor3,
-                                                                                        reflectori,
-                                                                                        myscore)
+                                            steckerscore,steckerinfo=self.steckerHillClimb(rotor1,
+                                                                                           rotor2,
+                                                                                           rotor3,
+                                                                                           reflectori,
+                                                                                           myscore)
                                             
                                             '''
                                             #strtowrite="STECKER info"+format(datetime.now(), '%H:%M:%S')
@@ -355,7 +381,7 @@ class crackerParallel():
 
                                             #stecker
                                             
-                                            if (myscore>-1725 or steckerscore>-1725):
+                                            if (myic>0.7 or steckerscore>-2500):
                                                 #1725 bi1941 #4300 quad
                                                 strtowrite="!!! info"\
                                                 +format(datetime.now(), '%H:%M:%S')\
@@ -373,9 +399,10 @@ class crackerParallel():
         strtowrite="BOTR: "+str(bestoftherun)+"\n"+str(botrstring)
         self.q.put(strtowrite)                          
 
-    def ultimate_MP_method2_1st_step(self):
+    def ultimate_MP_method2(self):
         #1st step is to find out the plausible walzen and ring settings candidates for next steps using monograms
         #plugboardi=plugboard({"A":"B","C":"D","E":"F","G":"H","I":"J","K":"L","M":"N","O":"P","Q":"R","S":"T"})
+        messagelenght=len(self.scrambled)
         plugboardi=plugboard({})
         bestoftherun=-10000
         botrstring=""
@@ -449,11 +476,11 @@ class crackerParallel():
                                                 #self.q.put(strtowrite)
                                                 '''
                                                 
-                                                steckerscore,steckerinfo=self.steckerConfig(rotor1,
-                                                                                            rotor2,
-                                                                                            rotor3,
-                                                                                            reflectori,
-                                                                                            myscore)
+                                                steckerscore,steckerinfo=self.steckerHillClimb(rotor1,
+                                                                                               rotor2,
+                                                                                               rotor3,
+                                                                                               reflectori,
+                                                                                               myscore)
                                                 
                                                 '''
                                                 #strtowrite="STECKER info"+format(datetime.now(), '%H:%M:%S')
@@ -503,7 +530,7 @@ class crackerParallel():
         strtowrite="BOTR: "+str(bestoftherun)+"\n"+str(botrstring)
         self.q.put(strtowrite)                                                               
                                                         
-    def steckerConfig(self,rotor1,rotor2,rotor3,reflectori,score):
+    def steckerHillClimb(self,rotor1,rotor2,rotor3,reflectori,score):
         pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         plugboardi=plugboard({})
 
@@ -541,6 +568,7 @@ class crackerParallel():
         return topscore,dict(plugboardi.pairs)
                             
     def finalRing(self):
+        #ring cracker is good for cracking ciphers with some values known
             #plugboardi=plugboard({"A":"B","C":"D","E":"F","G":"H","I":"J","K":"L","M":"N","O":"P","Q":"R","S":"T"})
             plugboardi=plugboard({"":"","":"","":"","":"","":"",
                                   "":"","":"","":"","":"","":""})
@@ -568,6 +596,7 @@ class crackerParallel():
 
 
     def finalSimple(self):
+        #simple cracker is good for cracking ciphers with some values known
         #plugboardi=plugboard({"A":"B","C":"D","E":"F","G":"H","I":"J","K":"L","M":"N","O":"P","Q":"R","S":"T"})
         #plugboardi=plugboard({"":"","":"","":"","":"","":"","":"","":"","":"","":"","":""})
         plugboardi=plugboard({"":""})
@@ -604,14 +633,19 @@ class crackerParallel():
                                         +" Ref:"+str(reflectori.typ)+"\n"
                                         self.q.put(strtowrite)
 def final(subset,q):
-    #insert the scrambled text
+    #insert the scrambled text 547 char long
     scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS" 
-    scorer=ngram_score('grams/german_monograms.txt')
+    #scorer_mono=ngram_score('grams/german_monograms.txt')
+    #scorer_bi=ngram_score('grams/german_bigrams.txt')
+    scorer_tri=ngram_score('grams/german_trigrams.txt')
+    #scorer_quad=ngram_score('grams/german_quadgrams.txt')
+    scorer=scorer_tri
+
     crackerF=crackerParallel(scrambled,scorer,subset,q)
-    crackerF.ultimate_MP_method_1_1st_step()
+    crackerF.ultimate_MP_method_1()
 
 def finalRing(subset,q):
-    #insert the scrambled text
+    #insert the scrambled text 547 char long
     scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS" 
     scorer=ngram_score('grams/german_quadgrams.txt')
     crackerF=crackerParallel(scrambled,scorer,subset,q)
