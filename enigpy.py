@@ -277,8 +277,8 @@ class crackerParallel():
     def ultimate_MP_method_1(self): 
         #1st step is to find out the plausible walzen and ring settings candidates for next steps using IC
         messagelenght=len(self.ttc)
-        ic=0
-        topic=0
+        ic=0.042 #threshold, everything less than this won't be even evaluated further
+        topic=ic
 
         plugboardi=plugboard({})
         bestoftherun=-10000
@@ -301,15 +301,15 @@ class crackerParallel():
                         myic=self.scorer.icscorer(text)
                         #myscore=self.scorer_mono.score(text) #in case we'd need monograms (but we don't at this moment)
                         
-                        if (myic>ic) or (ic>0.07):
+                        if (myic>ic):
                             topic=myic
                             strtowrite="a "+format(datetime.now(), '%H:%M:%S')\
-                            +"\nORIGINAL Score\n"+str(myscore)+"\nGuess: "+text\
+                            +"\n 1st step Score\n"+str(myic)+"\nGuess: "+text\
                             +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)\
                             +" Ring3: "+str("0")+" Wheels: "\
                             +rotor1.number+":"+rotor2.number+":"+rotor3.number\
                             +" Ref:"+str(reflectori.typ)+"\n"
-                            self.q.put(strtowrite)                                                                                                             
+                            self.q.put(strtowrite)
                             
                             #2nd step is to test right-most and middle rotor combinations for the best scored ones
                             for x in range(26):
@@ -327,9 +327,19 @@ class crackerParallel():
 
                                         myic=self.scorer.icscorer(text)
 
+                                        
+
                                         #3rd step is Hill-climbing steckers using trigrams
                                         if (myic>topic):
                                             topic=myic
+
+                                            strtowrite="a "+format(datetime.now(), '%H:%M:%S')\
+                                            +"\n2nd step Score\n"+str(myic)+"\nGuess: "+text\
+                                            +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)\
+                                            +" Ring3: "+str("0")+" Wheels: "\
+                                            +rotor1.number+":"+rotor2.number+":"+rotor3.number\
+                                            +" Ref:"+str(reflectori.typ)+"\n"
+                                            self.q.put(strtowrite)
 
                                             #bestoftherun=topscore #nope
                                             #stecker
@@ -350,26 +360,12 @@ class crackerParallel():
                                                                                            rotor3,
                                                                                            reflectori,
                                                                                            myscore)
-                                            
-                                            '''
-                                            #strtowrite="STECKER info"+format(datetime.now(), '%H:%M:%S')
-                                            +"\nORIGINAL Score\n"+str(myscore)+"\nSTECKER Score\n"+str(steckerscore)
-                                            +"\nGuess: "+text
-                                            +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)
-                                            +" Grunds new: "+str(i)+":"
-                                            +str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)
-                                            +" Ring3: "+str(o)
-                                            +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
-                                            +" Ref:"+str(reflectori.typ)+"\n"
-                                            +"STECKER: "+str(steckerinfo)+"\n\n"
-                                            #self.q.put(strtowrite)
-                                            '''
-                                            
+
                                             if (steckerscore>bestoftherun):
                                                 bestoftherun=steckerscore
                                                 botrstring="BOTR info "\
                                                 +format(datetime.now(), '%H:%M:%S')\
-                                                +"\nORIGINAL Score\n"+str(myscore)\
+                                                +"\nORIGINAL Score\n"+str(myic)\
                                                 +"\nSTECKER Score\n"+str(steckerscore)\
                                                 +"\nGuess: "+text+"\nGrunds original: "\
                                                 +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
@@ -381,11 +377,11 @@ class crackerParallel():
 
                                             #stecker
                                             
-                                            if (myic>0.7 or steckerscore>-2500):
+                                            if (myic>0.069 or steckerscore>-2500):
                                                 #1725 bi1941 #4300 quad
                                                 strtowrite="!!! info"\
                                                 +format(datetime.now(), '%H:%M:%S')\
-                                                +"\nORIGINAL Score\n"+str(myscore)\
+                                                +"\nORIGINAL Score\n"+str(myic)\
                                                 +"\nSTECKER Score\n"+str(steckerscore)\
                                                 +"\nGuess: "+text+"\nGrunds original: "\
                                                 +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
@@ -396,7 +392,9 @@ class crackerParallel():
                                                 +"STECKER: "+str(steckerinfo)+"\n\n"
 
                                                 self.q.put(strtowrite)
-        strtowrite="BOTR: "+str(bestoftherun)+"\n"+str(botrstring)
+        if (bestoftherun > -10000):
+            strtowrite="BOTR: "+str(bestoftherun)+"\n"+str(botrstring)
+        strtowrite=" "
         self.q.put(strtowrite)                          
 
     def ultimate_MP_method2(self):
