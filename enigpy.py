@@ -255,25 +255,28 @@ class cracker():
         pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         plugboardi=plugboard({})
 
-        #we'll try to hill-climb just the most used pairs
+        # we'll try to hill-climb just the most used pairs
+        mostusedletters = ["E","N","X","R"] # we will use 4 most used letters for the 1st run using IC
         letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M",
                    "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
-        mostusedletters = ["E","N","X","R","S"]
-
+        
         topscore=score
 
-        #we'll use most used letters for step 1
+        for firstletter in mostusedletters:
+            for secondletter in letters: #check every combination of the most used letters one by one
+                if (secondletter != firstletter):
+                    #plugboardtest=dict(plugboardi.pairs)
+                    plugboardtestpairs={firstletter:secondletter}
+                    plugboardtest=plugboard(plugboardtestpairs)
+                    print (plugboardtest)
+                    enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardtest)    
+                    text=enigmai.EDcrypt(self.ttc)
+                    myscore=self.scorer.icscorer(text)
 
-        for i in mostusedletters:
-            
-            enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardtest)    
-            text=enigmai.EDcrypt(self.ttc)
-            myscore=self.scorer.icscorer(text)
-
-            if (myscore>topscore):
-                topscore=myscore
-                best=[sub[0],sub[1]]
-                print ("LTR_IN:"+sub[0]+sub[1])
+                    if (myscore>topscore):
+                        topscore=myscore
+                        best=[firstletter,secondletter]
+                        print ("LTR_IN:"+firstletter+secondletter)
 
 
         return topscore,"aaa"
@@ -283,15 +286,13 @@ class cracker():
         pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         plugboardi=plugboard({})
 
-        '''
-        '''
         for subset in itertools.combinations("A","B","C","D","E","F","G","H","I",
         "J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z", 2):
-        '''
         
-        '''letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M",
-                   "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]'''
-        '''
+        
+        letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M",
+                   "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+
         #we'll try to hill-climb just the most used pairs
         letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M",
                    "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
