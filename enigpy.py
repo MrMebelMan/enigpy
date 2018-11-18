@@ -63,36 +63,43 @@ class enigma():
         r2pos=self.rotor2.grund
         r3pos=self.rotor3.grund
         scrambled=""
+
+        
         
         for letter in text:
             onecipher=""
             enc=0
             r3pos+=1
+            #print ("\n encrypting "+letter)
+            stepagain1=False # 2 notches on VI VII VIII --- moving slowest rotor
+            stepagain2=False # 2 notches on VI VII VIII --- moving middle rotor
             
+            doublestepagain2=False # magic
+
+            if (self.rotor3.step==13 and r3pos==26): 
+                stepagain2=True
+
+            if (self.rotor2.step==13 and r2pos+1==26): 
+                stepagain1=True 
             
-            if ((self.rotor2.step==12 and r2pos==12)
-                and
-                (self.rotor2.number=="VI"
-                or self.rotor2.number=="VII"
-                or self.rotor2.number=="VIII")):
-                
-                self.rotor2.step=25
-            
-            if (r3pos==self.rotor3.step) or (r2pos+1==self.rotor2.step): # or (double stepping of middle rotor)
+            if (r3pos==self.rotor3.step or stepagain2==True) or (r2pos+1==self.rotor2.step) or stepagain1==True: # or (double stepping of middle rotor)
                 r2pos+=1
+                #print ("stepagain1"+str(stepagain1))
+                #print ("stepagain2"+str(stepagain2))
+                #print ("doublestepagain2"+str(doublestepagain2))
+                #print (self.rotor2.step)
                 #print("stepping middle")
                 #print(r2pos)
                 #print(r3pos)
-                if r2pos==self.rotor2.step:
+
+                if (self.rotor2.step==13 and r2pos==26):
+                  stepagain1=True
+
+                if (r2pos==self.rotor2.step or stepagain1==True):
                     #print("stepping slow")
                     r1pos+=1
-
-            if ((self.rotor3.step==12 and r3pos==12) and 
-                (self.rotor3.number=="VI" 
-                 or self.rotor3.number=="VII" 
-                 or self.rotor3.number=="VIII")):
-                self.rotor3.step=25
-            
+                    stepagain1=False
+         
             if r3pos>25:
                 r3pos=0
             
@@ -108,6 +115,7 @@ class enigma():
             #stecker
             if onecipher in self.plugboard.pairs:
                 onecipher=self.plugboard.pairs.get(onecipher)
+
             onecipher=self.rotor3.wiring[((pomlist.index(onecipher)+r3pos)%26)]
             onecipher=pomlist[pomlist.index(onecipher)] #out - rotor3.ring  offset ringstellung
             onecipher=self.rotor2.wiring[((self.mapping.get(onecipher)-r3pos+r2pos)%26)]
@@ -121,6 +129,7 @@ class enigma():
             onecipher=pomlist[pomlist.index(onecipher)] 
             onecipher=pomlist[self.rotor3.wiring.index(onecipher)]
             onecipher=pomlist[((pomlist.index(onecipher)-r3pos)%26)]
+
 
             if onecipher in self.plugboard.pairs:
                 onecipher=self.plugboard.pairs.get(onecipher)
@@ -152,9 +161,9 @@ class rotor():
             "III"  : 22, #V
             "IV"   : 10, #J
             "V"    : 26, #Z
-            "VI"   : 13, #Z+M 12+25
-            "VII"  : 13, #Z+M 12+25
-            "VIII" : 13  #Z+M 12+25
+            "VI"   : 13, #Z+M 13+26
+            "VII"  : 13, #Z+M 13+26
+            "VIII" : 13  #Z+M 13+26
             }
 
     def __init__(self,walzen,ringstellung,grundstellung):
@@ -217,8 +226,9 @@ class plugboard():
 
 class cracker():
     
-    def __init__(self,textToCrack):
+    def __init__(self,textToCrack,scorer):
         self.ttc=textToCrack
+        self.scorer=scorer
     
     def fanal(self):
         list={}
@@ -229,6 +239,141 @@ class cracker():
             list[letter] += 1
             
         return list
+        
+    def test(self):
+        print ("test2")
+        plugboardi=plugboard({})
+        reflectori=reflector("C")
+        rotor1=rotor("I",0,25)  #slowest, left-most
+        rotor2=rotor("IV",21,0)  #middle
+        rotor3=rotor("VI",15,3)  #fastest, right-most
+        enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
+        text=enigmai.EDcrypt(self.ttc)
+        print (text)
+
+    def steckerHillClimbTest(self,rotor1,rotor2,rotor3,reflectori,score,plugs1,plugs2,plugs3):
+        pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        plugboardi=plugboard({})
+
+        #we'll try to hill-climb just the most used pairs
+        letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M",
+                   "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+        mostusedletters = ["E","N","X","R","S"]
+
+        topscore=score
+
+        #we'll use most used letters for step 1
+
+        for i in mostusedletters:
+            
+            enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardtest)    
+            text=enigmai.EDcrypt(self.ttc)
+            myscore=self.scorer.icscorer(text)
+
+            if (myscore>topscore):
+                topscore=myscore
+                best=[sub[0],sub[1]]
+                print ("LTR_IN:"+sub[0]+sub[1])
+
+
+        return topscore,"aaa"
+
+    '''
+    def steckerHillClimbTest(self,rotor1,rotor2,rotor3,reflectori,score,plugs1,plugs2,plugs3):
+        pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        plugboardi=plugboard({})
+
+        '''
+        '''
+        for subset in itertools.combinations("A","B","C","D","E","F","G","H","I",
+        "J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z", 2):
+        '''
+        
+        '''letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M",
+                   "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]'''
+        '''
+        #we'll try to hill-climb just the most used pairs
+        letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M",
+                   "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+        mostusedletters = ["E","N","X","R","S"]
+
+        #list(itertools.product(mostusedletters, letters))
+        #letters.remove("")
+        steckerinfo=[]
+        lettersToRemove=[]
+        topscore=score
+        #allcombs = itertools.combinations(letters, 2)
+        for i in range(plugs1):
+            lettersToRemove[:] = []
+            plugboardtestpairs = {}
+            #for sub in (itertools.combinations(letters, 2)): #all letters
+            print (itertools.product(mostusedletters, letters))
+            for sub in (itertools.product(mostusedletters, letters)):
+                plugboardtestpairs=dict(plugboardi.pairs)
+                print (sub)
+                print (plugboardtestpairs)
+                plugboardtestpairs[sub[0]]=sub[1]
+                plugboardtest=plugboard(plugboardtestpairs)
+                enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardtest)    
+                text=enigmai.EDcrypt(self.ttc)
+                myscore=self.scorer.icscorer(text)
+                print (self.scorer.icscorer(text))
+
+                if (myscore>topscore):
+                    topscore=myscore
+                    lettersToRemove=[sub[0],sub[1]]
+                    print ("LTR_IN:"+sub[0]+sub[1])
+
+                input("Press Enter to continue...")
+
+            if (lettersToRemove):
+                print ("LTR_OUT"+lettersToRemove[0]+lettersToRemove[1])
+                letters.remove(lettersToRemove[0])
+                letters.remove(lettersToRemove[1])
+                plugboardi.pairs[lettersToRemove[0]]=lettersToRemove[1]
+
+                #2nd run myscore=self.scorer.score(text)
+        
+        return topscore,dict(plugboardi.pairs)
+    '''
+
+    def testHillClimb(self):
+        print ("testHillClimb")
+        bestoftherun=-10000
+        myscore=-10000
+        plugboardi=plugboard({})
+        plugs1=2 #how many plugs we'd like to try to find in 1st run IC
+        plugs2=4 #how many plugs we'd like to try to find in 2nd run trigram
+        plugs3=2 #how many plugs we'd like to try to find in 3rd run trigram
+
+        f = open("testHillClimb.txt", 'a')
+        start=datetime.now()
+        f.write("\n\nSTART: "+format(start, '%H:%M:%S')+"\n\n")
+        f.flush()
+
+        reflectori=reflector("C")
+        rotor1=rotor("I",0,25)  #slowest, left-most
+        rotor2=rotor("IV",21,0)  #middle
+        rotor3=rotor("VI",15,3)  #fastest, right-most
+        enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
+        text=enigmai.EDcrypt(self.ttc)
+
+
+        myic=self.scorer.icscorer(text)
+        steckerscore,steckerinfo=self.steckerHillClimbTest(rotor1,rotor2,rotor3,reflectori,myscore,plugs1,plugs2,plugs3)
+
+        if (steckerscore>-10000):
+            bestoftherun=steckerscore
+            infostring="Info "\
+            +format(datetime.now(), '%H:%M:%S')\
+            +"\nORIGINAL Score\n"+str(myic)\
+            +"\nSTECKER Score\n"+str(steckerscore)\
+            +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number\
+            +" Ref:"+str(reflectori.typ)+"\n"\
+            +"STECKER: "+str(steckerinfo)+"\n\n"
+            f.write(infostring+"\n")
+            f.flush()
+        #print (text)
 
 #cracker suitable for parallel computation
 class crackerParallel():
@@ -249,14 +394,35 @@ class crackerParallel():
         return list
 
 #there are two possible methods to do brute force + hill-climbing. Each comprises of several steps
-#
+
 # Method #1:
 # 1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) using Index of Coincidence (IC). 
 # Combinations: 2 109 120
 # 2nd step: brute force fastest (3rd) and middle (2nd) ring settings (26^2) using IC.
 # Combinations: 676
-# 3rd step: Hill-climb steckers using trigrams (possibly bigrams/quadgrams).
+# 3rd step: Hill-climb first 4 steckers using IC.
 # Combinations: 150 738 274 937 250 [26!/(6!*10!*2^10)] = not feasible to brute force.
+# 4th step: Hill-climb steckers using trigrams (possibly bigrams/quadgrams).
+# Combinations: 150 738 274 937 250 [26!/(6!*10!*2^10)] = not feasible to brute force.
+#
+# Steckers (when X steckers are connected):
+# Plain = % of Plaintext 
+# Mono  = % of Monoalphabetic substition
+# Mist  = % of Mist/Garble
+#
+# X     Plain   Mono    Mist
+# 0  :  10.1    18.5    71.4 <--- 71.4% is mist, can't use trigrams. Use IC on Mono part
+# 1  :  13.3    22.4    64.3
+# 2  :  17.8    25.0    57.2
+# 3  :  23.6    26.4    50.0
+# 4  :  30.6    26.5    42.9 <--- mist clears up significantly, can now use trigrams
+# 5  :  39.0    25.3    35.7
+# 6  :  48.6    22.8    28.6
+# 7  :  59.6    19.0    21.4
+# 8  :  71.7    14.0    14.3
+# 9  :  85.2     7.7     7.1
+# 10 : 100.0     0.0     0.0
+#
 #
 # Method #2 (much slower due to 1st step):
 # 1st step: brute force reflectors (2) + walzen order (60) + positions (26^3) + fastest (3rd) ring (26) using IC.
@@ -267,7 +433,11 @@ class crackerParallel():
 # Combinations: 3 453 450 - 164 038 875
 # 4th step: Hill-climb last few (~2-3) steckers using trigrams. 
 # Combinations: 44 850 -  3 453 450
-#                           
+#
+# Method #3 
+# 1st step: precompute all possible combinations 27 418 560 (54 837 120 with 2 types of reflector)
+# 2nd step: Hill-climb using same technique as in method #1
+#
 #Index of Coincidence (IC):
 #Random text, that is where all letters are present with nearly the same frequency, will have an IC 
 #‘score’ of 1/26 or 0.03846. If we measure the IC score of plain Enigma text it can be up to around 
@@ -277,13 +447,16 @@ class crackerParallel():
     def ultimate_MP_method_1(self): 
         #1st step is to find out the plausible walzen and ring settings candidates for next steps using IC
         messagelenght=len(self.ttc)
-        ic=0.042 #threshold, everything less than this won't be even evaluated further
+        ic=0.040 #threshold, everything less than this won't be even evaluated further
         topic=ic
 
         plugboardi=plugboard({})
         bestoftherun=-10000
-        myscore=-1000
+        myscore=-10000
         botrstring=""
+
+        #-1725 bi1941 #-2900 tri #-4300 quad
+        steckertop=-2900
 
         for r in range(2):
             if r==0:
@@ -303,40 +476,43 @@ class crackerParallel():
                         
                         if (myic>ic):
                             topic=myic
-                            strtowrite="a "+format(datetime.now(), '%H:%M:%S')\
+                            '''
+                            strtowrite=""+format(datetime.now(), '%H:%M:%S')\
                             +"\n 1st step Score\n"+str(myic)+"\nGuess: "+text\
                             +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)\
                             +" Ring3: "+str("0")+" Wheels: "\
                             +rotor1.number+":"+rotor2.number+":"+rotor3.number\
                             +" Ref:"+str(reflectori.typ)+"\n"
                             self.q.put(strtowrite)
+                            '''
                             
                             #2nd step is to test right-most and middle rotor combinations for the best scored ones
                             for x in range(26):
                                 for y in range(26):
-                                        r3shift=0+x
-                                        r2shift=0
-                                        if (rotor2.step>=r3shift):
-                                            r2shift=1
+                                        #r3shift=0+y
+                                        #r2shift=0
+                                        #if (rotor2.step>=r3shift):
+                                        #    r2shift=1
 
+                                        #rotor1=rotor(self.subset[0],0,i)
+                                        #rotor2=rotor(self.subset[1],x,(abs(j-r2shift-x)%26))
+                                        #rotor3=rotor(self.subset[2],y,((k+r3shift)%26))
                                         rotor1=rotor(self.subset[0],0,i)
-                                        rotor2=rotor(self.subset[1],0,(abs(j-r2shift-x)%26))
-                                        rotor3=rotor(self.subset[2],y,((k+r3shift)%26))
+                                        rotor2=rotor(self.subset[1],x,j)
+                                        rotor3=rotor(self.subset[2],y,k)
                                         enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)
                                         text=enigmai.EDcrypt(self.ttc)
 
                                         myic=self.scorer.icscorer(text)
 
-                                        
-
                                         #3rd step is Hill-climbing steckers using trigrams
-                                        if (myic>topic):
+                                        if (myic>topic and myic>0.042):
                                             topic=myic
 
-                                            strtowrite="a "+format(datetime.now(), '%H:%M:%S')\
+                                            strtowrite=""+format(datetime.now(), '%H:%M:%S')\
                                             +"\n2nd step Score\n"+str(myic)+"\nGuess: "+text\
                                             +"\nGrunds original: "+str(i)+":"+str(j)+":"+str(k)\
-                                            +" Ring3: "+str("0")+" Wheels: "\
+                                            +" Ring2: "+str(x)+ " Ring3: "+str(y)+" Wheels: "\
                                             +rotor1.number+":"+rotor2.number+":"+rotor3.number\
                                             +" Ref:"+str(reflectori.typ)+"\n"
                                             self.q.put(strtowrite)
@@ -354,12 +530,14 @@ class crackerParallel():
                                             +" Ref:"+str(reflectori.typ)+"\n"
                                             #self.q.put(strtowrite)
                                             '''
-                                            
+                                            myscore=self.scorer.score(text)
                                             steckerscore,steckerinfo=self.steckerHillClimb(rotor1,
                                                                                            rotor2,
                                                                                            rotor3,
                                                                                            reflectori,
                                                                                            myscore)
+
+                                            
 
                                             if (steckerscore>bestoftherun):
                                                 bestoftherun=steckerscore
@@ -369,24 +547,23 @@ class crackerParallel():
                                                 +"\nSTECKER Score\n"+str(steckerscore)\
                                                 +"\nGuess: "+text+"\nGrunds original: "\
                                                 +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
-                                                +str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
-                                                +" Ring3: "+str(x)+" Wheels: "\
-                                                +rotor1.number+":"+rotor2.number+":"+rotor3.number\
+                                                #+str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
+                                                +" Ring3: "+str(x)\
+                                                +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number\
                                                 +" Ref:"+str(reflectori.typ)+"\n"\
                                                 +"STECKER: "+str(steckerinfo)+"\n\n"
 
                                             #stecker
                                             
-                                            if (myic>0.069 or steckerscore>-2500):
-                                                #1725 bi1941 #4300 quad
+                                            if (steckerscore>-2850 or steckerscore>steckertop):
                                                 strtowrite="!!! info"\
                                                 +format(datetime.now(), '%H:%M:%S')\
                                                 +"\nORIGINAL Score\n"+str(myic)\
                                                 +"\nSTECKER Score\n"+str(steckerscore)\
                                                 +"\nGuess: "+text+"\nGrunds original: "\
                                                 +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
-                                                +str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
-                                                +" Ring3: "+str(x)\
+                                                #+str(i)+":"+str(abs(j-r2shift)%26)+":"+str((k+r3shift)%26)\
+                                                +"Ring2: "+str(x)+" Ring3: "+str(y)\
                                                 +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number\
                                                 +" Ref:"+str(reflectori.typ)+"\n"\
                                                 +"STECKER: "+str(steckerinfo)+"\n\n"
@@ -394,7 +571,7 @@ class crackerParallel():
                                                 self.q.put(strtowrite)
         if (bestoftherun > -10000):
             strtowrite="BOTR: "+str(bestoftherun)+"\n"+str(botrstring)
-        strtowrite=" "
+        strtowrite=""
         self.q.put(strtowrite)                          
 
     def ultimate_MP_method2(self):
@@ -473,7 +650,7 @@ class crackerParallel():
                                                 +" Ref:"+str(reflectori.typ)+"\n"
                                                 #self.q.put(strtowrite)
                                                 '''
-                                                
+
                                                 steckerscore,steckerinfo=self.steckerHillClimb(rotor1,
                                                                                                rotor2,
                                                                                                rotor3,
@@ -510,7 +687,7 @@ class crackerParallel():
 
                                                 #stecker
                                                 
-                                                if (myscore>-1725 or steckerscore>-1725):
+                                                if (steckerscore>-2800):
                                                     #1725 bi1941 #4300 quad
                                                     strtowrite="!!! info"\
                                                     +format(datetime.now(), '%H:%M:%S')\
@@ -537,8 +714,15 @@ class crackerParallel():
         "J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z", 2):
         '''
         
+        '''letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M",
+                   "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]'''
+
+        #we'll try to hill-climb just the most used pairs
         letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M",
                    "N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
+        mostusedletters = ["E","N","X","R","S"]
+
+        #list(itertools.product(mostusedletters, letters))
         #letters.remove("")
         steckerinfo=[]
         lettersToRemove=[]
@@ -547,13 +731,15 @@ class crackerParallel():
         for i in range(10):
             lettersToRemove[:] = []
             plugboardtestpairs = {}
-            for sub in (itertools.combinations(letters, 2)):
+            #for sub in (itertools.combinations(letters, 2)): #all letters
+            for sub in (itertools.product(mostusedletters, letters)):
                 plugboardtestpairs=dict(plugboardi.pairs)
                 plugboardtestpairs[sub[0]]=sub[1]
                 plugboardtest=plugboard(plugboardtestpairs)
                 enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardtest)    
                 text=enigmai.EDcrypt(self.ttc)
                 myscore=self.scorer.score(text)
+                print (self.scorer.icscorer(text))
                 
                 if (myscore>topscore):
                     topscore=myscore
@@ -591,51 +777,12 @@ class crackerParallel():
                         +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
                         +" Ref:"+str(reflectori.typ)+"\n"
                         self.q.put(strtowrite)
-
-
-    def finalSimple(self):
-        #simple cracker is good for cracking ciphers with some values known
-        #plugboardi=plugboard({"A":"B","C":"D","E":"F","G":"H","I":"J","K":"L","M":"N","O":"P","Q":"R","S":"T"})
-        #plugboardi=plugboard({"":"","":"","":"","":"","":"","":"","":"","":"","":"","":""})
-        plugboardi=plugboard({"":""})
-        #reflectori=reflector("B")
-        #B grunds20:8:14 wheelsII:V:IV
-        #p.2 reflector: B grunds: 11:12:13 wheels: II:V:IV
-        topscore=-10000
-        
-        for r in range(2):
-            if r==0:
-                reflectori=reflector("B")
-            else:
-                reflectori=reflector("C")
-            for i in range(26):
-                for j in range(26):
-                    for k in range(26):
-                        for l in range(1):
-                            for m in range(1):
-                                for n in range(1):
-                            #print(subset)
-                                    rotor1=rotor(self.subset[0],l,i)
-                                    rotor2=rotor(self.subset[1],m,j)
-                                    rotor3=rotor(self.subset[2],n,k)
-                                    enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
-                                    text=enigmai.EDcrypt(self.ttc)
-                                    myscore=self.scorer.score(text)
-                                    
-                                    if (myscore>topscore) and (myscore>-320):
-                                        topscore=myscore
-                                        strtowrite="Score"+str(topscore)
-                                        +" Guess: "+text
-                                        +" Grunds: "+str(i)+":"+str(j)+":"+str(k)+" Ring2: "+str(o)+" Ring3: "+str(n)
-                                        +" Wheels: "+rotor1.number+":"+rotor2.number+":"+rotor3.number
-                                        +" Ref:"+str(reflectori.typ)+"\n"
-                                        self.q.put(strtowrite)
 def final(subset,q):
     #insert the scrambled text 547 char long
     scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS" 
     #scorer_mono=ngram_score('grams/german_monograms.txt')
     #scorer_bi=ngram_score('grams/german_bigrams.txt')
-    scorer_tri=ngram_score('grams/german_trigrams.txt')
+    scorer_tri=ngram_score('grams/german_trigrams1941.txt')
     #scorer_quad=ngram_score('grams/german_quadgrams.txt')
     scorer=scorer_tri
 
@@ -668,6 +815,21 @@ def listener(q):
     f.close()
 
 if __name__ == "__main__":
+
+    '''
+    print ("test")
+    scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS" 
+    #scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTL" 
+    scorer_tri=ngram_score('grams/german_trigrams1941.txt')
+    crackerTest=cracker(scrambled)
+    crackerTest.test()
+    '''
+    print ("test")
+    scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS" 
+    scorer_tri=ngram_score('grams/german_trigrams1941.txt')
+    crackerTest=cracker(scrambled,scorer_tri)
+    crackerTest.testHillClimb()
+    '''
 
     print("Entering the castle of Aaaaaaaaaaaaaaaaaargh")
     walzennumbers = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"]  
@@ -705,3 +867,5 @@ if __name__ == "__main__":
     q.put('kill')
     pool.close()
     pool.join()
+    '''
+    
