@@ -419,6 +419,9 @@ class crackerParallel():
         topscore=score
         bestpairscore=score
         finalstecker=({})
+        best=["",""]
+        best[0]=""
+        best[1]=""
 
         #print ("Top score: "+str(topscore))
         for i in range(plugs1):  #find the first best pair out of most used letters
@@ -446,12 +449,13 @@ class crackerParallel():
             if (best[0] or best[1] == ""):
                 return bestpairscore,dict(plugboardi.pairs)
 
+            best[0]=""
+            best[1]=""
             letters.remove(best[0])
             letters.remove(best[1])
             mostusedletters.remove(best[0])
             plugboardi.pairs[best[0]]=best[1]
-            best[0]=""
-            best[1]=""
+            
 
         #print (dict(plugboardi.pairs))
         return bestpairscore,dict(plugboardi.pairs)
@@ -510,6 +514,8 @@ class crackerParallel():
 
     def ultimate_MP_method_1(self): 
         #1st step is to find out the plausible walzen and ring settings candidates for next steps using IC
+        strtowrite="!!! Starting at " +format(datetime.now(), '%H:%M:%S')+ " with: "+ self.subset[0]+"-"+self.subset[1]+"-"+ self.subset[2]     
+        self.q.put(strtowrite)
         messagelenght=len(self.ttc)
         ic=0.039 #threshold, everything less than this won't be even evaluated further
         topic=ic
@@ -617,6 +623,9 @@ class crackerParallel():
                                                 +" Ref:"+str(reflectori.typ)+"\n"\
                                                 +"STECKER: "+str(steckerinfo)+"\n\n"
                                                 self.q.put(strtowrite)
+
+                                            if (steckerscore>0.05):
+                                                print ("BINGO!!!")
 
                                             #stecker
                                             '''
@@ -901,7 +910,7 @@ if __name__ == "__main__":
     walzennumbers = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"]  
     #jobs = []
     print ("Logical cores available %d" % multiprocessing.cpu_count())
-    noteating=2
+    noteating=1
     print ("Cores NOT being eaten omnomnom %d" % noteating)
     
     manager = multiprocessing.Manager()
@@ -933,5 +942,3 @@ if __name__ == "__main__":
     q.put('kill')
     pool.close()
     pool.join()
-   
-    
