@@ -475,7 +475,7 @@ class crackerParallel():
             enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)  # initial trigram score
             text = enigmai.EDcrypt(self.ttc)
             bestpairscoreGRAM = self.scorer.score(text)
-            print (bestpairscoreGRAM)
+            #print (bestpairscoreGRAM)
 
             for i in range(plugsGRAM):
                 for firstletter in list(mostusedletters2ndrun):
@@ -484,7 +484,7 @@ class crackerParallel():
                             plugboardtestpairs={firstletter:secondletter}
                             plugboardtestdict = dict(plugboardtestpairs, **plugboardi.pairs)
                             plugboardtest=plugboard(plugboardtestdict)
-                            print (plugboardtest.pairs)
+                            #print (plugboardtest.pairs)
                             enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardtest)    
                             text=enigmai.EDcrypt(self.ttc)
                             myscore=self.scorer.score(text)
@@ -506,8 +506,6 @@ class crackerParallel():
             
             best[0]=""
             best[1]=""
-
-
 
         #print ((plugboardi.pairs))
         return bestpairscoreIC,bestpairscoreGRAM,dict(plugboardi.pairs)
