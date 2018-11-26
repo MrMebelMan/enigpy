@@ -508,7 +508,13 @@ class crackerParallel():
             best[1]=""
 
         #print ((plugboardi.pairs))
-        return bestpairscoreIC,bestpairscoreGRAM,dict(plugboardi.pairs)
+
+        # IC calculation after the 2nd step of hill climb
+        enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
+        text=enigmai.EDcrypt(self.ttc)
+        afterwardsIC=self.scorer.icscore(text)
+
+        return bestpairscoreIC,bestpairscoreGRAM,afterwardsIC,dict(plugboardi.pairs)
 
 
 #there are two possible methods to do brute force + hill-climbing. Each comprises of several steps
@@ -656,7 +662,7 @@ class crackerParallel():
                                             #self.q.put(strtowrite)
                                             '''
                                             #myscore=self.scorer.score(text)
-                                            steckerscoreIC,steckerscoreGRAM,steckerinfo=self.steckerHillClimbTest(rotor1,
+                                            steckerscoreIC,steckerscoreGRAM,steckerscoreAIC,steckerinfo=self.steckerHillClimbTest(rotor1,
                                                                                            rotor2,
                                                                                            rotor3,
                                                                                            reflectori,
@@ -664,14 +670,14 @@ class crackerParallel():
 
                                             #strtowrite="STECKER: "+str(steckerinfo)+"\n\n"
                                             #self.q.put(strtowrite)
-                                            if ((steckerscoreIC>bestoftherunIC and steckerscoreIC>0.05) or (steckerscoreGRAM>bestoftherunGRAM and steckerscoreIC>0.05)):
-                                                print ("CHECKTHISOUT: " +text+"\n")
+                                            if ((steckerscoreIC>bestoftherunIC and steckerscoreAIC>0.06) or (steckerscoreGRAM>bestoftherunGRAM and steckerscoreAIC>0.06)):
+                                                #print ("CHECKTHISOUT: " +text+"\n")
                                                 bestoftherunIC=steckerscoreIC
                                                 bestoftherunGRAM=steckerscoreGRAM
                                                 strtowrite="Time "\
                                                 +format(datetime.now(), '%H:%M:%S')\
                                                 +"\nORIGINAL Score\n"+str(myic)\
-                                                +"\nSTECKER Scores\n"+str(steckerscoreIC)+" "+str(steckerscoreGRAM)\
+                                                +"\nScores\n"+"Original IC:"+str(steckerscoreIC)+"\nAfterwards IC:"+str(steckerscoreAIC)+"\nTrigram:"+str(steckerscoreGRAM)\
                                                 +"\nGuess: "+text+"\nGrunds original: "\
                                                 +str(i)+":"+str(j)+":"+str(k)+" Grunds new: "\
                                                 +"Ring2: "+str(x)+" Ring3: "+str(y)\
@@ -680,11 +686,17 @@ class crackerParallel():
                                                 +"STECKER: "+str(steckerinfo)+"\n\n"
                                                 self.q.put(strtowrite)
 
-                                            if (steckerscoreIC>0.06):
-                                                print ("BINGO IC!!! "+str(steckerscoreIC))
+                                            if (steckerscoreAIC>0.065):                                         
+                                                print ("BINGO IC!!! "+str(steckerscoreAIC))
+                                                print ("CHECKTHISOUT: " +text+"\n")
 
-                                            if (steckerscoreGRAM>-4000):
-                                                print ("BINGO GRAM!!! "+str(steckerscoreGRAM))
+                                            if (steckerscoreGRAM>-2900):
+                                                print ("CHECKTHISOUT: " +text+"\n")
+                                                print ("BINGO GRAM!!! GRAM:"+str(steckerscoreGRAM)) # Trigram score
+                                                print ("BINGO GRAM!!! ORIC:"+str(myic))   # original IC score
+                                                print ("BINGO GRAM!!! BEIC:"+str(steckerscoreIC))   # IC score after first 4 plugs
+
+                                                print ("BINGO GRAM!!! AFIC:"+str(steckerscoreAIC)+"\n\n")   # IC sore after Trigrams applied
                                             #stecker
 
                                                 
