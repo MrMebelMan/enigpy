@@ -9,7 +9,6 @@ class ngram_score(object):
             for line in file:
                 key,count = line.split(sep) 
                 self.ngrams[key] = int(count)
-                #print (key,count)
 
         self.L = len(key)
         self.N = sum(self.ngrams.values())

@@ -10,7 +10,7 @@ class enigma():
         self.rotor3=rotor3
         self.reflector=reflectori
         self.plugboard=plugboardi
-        #self.mapping = dict((c, ord(c) - 65) for c in pomlist)
+        # self.mapping = dict((c, ord(c) - 65) for c in pomlist)
             
     def EDcrypt(self, text):
         r1pos=self.rotor1.grund

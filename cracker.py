@@ -169,7 +169,6 @@ class crackerParallel():
             
             #print ((plugboardi.pairs))
 
-        #if (best[0] or best[1] == ""):
         if not plugboardi:
                 return bestpairscoreIC,bestpairscoreGRAM,dict(plugboardi.pairs)
 
