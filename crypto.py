@@ -1,24 +1,15 @@
-from string import ascii_uppercase
+from string import ascii_uppercase as pomlist
 
 class enigma():
-    mapping = {}
-    
     def __init__(self,rotor1,rotor2,rotor3,reflectori,plugboardi):
         self.rotor1=rotor1
         self.rotor2=rotor2
         self.rotor3=rotor3
         self.reflector=reflectori
         self.plugboard=plugboardi
-        pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        pomi=0
-        #for letter in pomlist:
-        #    self.mapping.update({letter:pomi})
-        #    pomi+=1
-
-        mapping=dict((c, ord(c) - 65) for c in ascii_uppercase)
+        self.mapping = dict((c, ord(c) - 65) for c in pomlist)
             
     def EDcrypt(self, text):
-        pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         r1pos=self.rotor1.grund
         r2pos=self.rotor2.grund
         r3pos=self.rotor3.grund
