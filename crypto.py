@@ -1,13 +1,16 @@
 from string import ascii_uppercase as pomlist
 
 class enigma():
+
+    mapping = dict((c, ord(c) - 65) for c in pomlist)
+
     def __init__(self,rotor1,rotor2,rotor3,reflectori,plugboardi):
         self.rotor1=rotor1
         self.rotor2=rotor2
         self.rotor3=rotor3
         self.reflector=reflectori
         self.plugboard=plugboardi
-        self.mapping = dict((c, ord(c) - 65) for c in pomlist)
+        #self.mapping = dict((c, ord(c) - 65) for c in pomlist)
             
     def EDcrypt(self, text):
         r1pos=self.rotor1.grund
