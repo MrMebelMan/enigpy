@@ -1,3 +1,5 @@
+from string import ascii_uppercase
+
 class enigma():
     mapping = {}
     
@@ -9,9 +11,11 @@ class enigma():
         self.plugboard=plugboardi
         pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         pomi=0
-        for letter in pomlist:
-            self.mapping.update({letter:pomi})
-            pomi+=1
+        #for letter in pomlist:
+        #    self.mapping.update({letter:pomi})
+        #    pomi+=1
+
+        mapping=dict((c, ord(c) - 65) for c in ascii_uppercase)
             
     def EDcrypt(self, text):
         pomlist="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -36,10 +40,9 @@ class enigma():
             if (self.rotor2.step==13 and r2pos+1==26): 
                 stepagain1=True 
             
-            if (r3pos==self.rotor3.step or stepagain2==True) or (r2pos+1==self.rotor2.step) or stepagain1==True: # or (double stepping of middle rotor)
+            if (r3pos==self.rotor3.step or stepagain2==True) or r2pos+1==self.rotor2.step or stepagain1==True: # or (double stepping of middle rotor)
                 r2pos+=1
                 #print("stepping middle")
-
 
                 if (self.rotor2.step==13 and r2pos==26):
                   stepagain1=True
@@ -81,4 +84,5 @@ class enigma():
             if onecipher in self.plugboard.pairs:
                 onecipher=self.plugboard.pairs.get(onecipher)
             scrambled+=onecipher
+
         return scrambled

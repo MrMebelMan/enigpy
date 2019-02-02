@@ -36,8 +36,8 @@ class cracker():
         #print ("Top score: "+str(topscore))
         for i in range(plugs1):  #find the first best pair out of most used letters
             #print (i)
-            for firstletter in list(mostusedletters):
-                for secondletter in list(letters): #check every combination of the most used letters one by one
+            for firstletter in mostusedletters:
+                for secondletter in letters: #check every combination of the most used letters one by one
                     if (secondletter != firstletter):
                         #plugboardtest=dict(plugboardi.pairs)
                         plugboardtestpairs={firstletter:secondletter}
@@ -133,8 +133,8 @@ class crackerParallel():
         #print ("Top score: "+str(topscore))
         for i in range(plugsIC):  #find the first best pair out of most used letters
             #print (i)
-            for firstletter in list(mostusedletters):
-                for secondletter in list(letters): #check every combination of the most used letters one by one
+            for firstletter in mostusedletters:
+                for secondletter in letters: #check every combination of the most used letters one by one
                     if (secondletter != firstletter):
                         #plugboardtest=dict(plugboardi.pairs)
                         plugboardtestpairs={firstletter:secondletter}
@@ -182,8 +182,8 @@ class crackerParallel():
             #print (bestpairscoreGRAM)
 
             for i in range(plugsGRAM):
-                for firstletter in list(mostusedletters2ndrun):
-                    for secondletter in list(letters): #check every combination of the most used letters one by one
+                for firstletter in mostusedletters2ndrun:
+                    for secondletter in letters: #check every combination of the most used letters one by one
                         if (secondletter != firstletter):
                             plugboardtestpairs={firstletter:secondletter}
                             plugboardtestdict = dict(plugboardtestpairs, **plugboardi.pairs)
