@@ -156,13 +156,16 @@ class cracker():
         if not plugboardi:
                 return bestpairscoreIC,bestpairscoreGRAM,dict(plugboardi.pairs)
 
-        if (bestpairscoreIC>0):
+        if (bestpairscoreIC>score):
             # if we found something, we continue to hill-climb
 
             enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)  # initial trigram score
             text = enigmai.EDcrypt(self.ttc)
+            print ("TEXT:", text)
             bestpairscoreGRAM = self.scorer.score(text)
-            #print (bestpairscoreGRAM)
+            print (bestpairscoreGRAM)
+            print (self.scorer.L)
+            print (self.scorer.floor)
 
             for i in range(plugsGRAM):
                 for firstletter in mostusedletters2ndrun:
