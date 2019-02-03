@@ -68,13 +68,15 @@ class cracker():
         f.flush()
 
         grunds = self.decodeGrundStellung()
+        rotors = {
+            1: Rotor("VIII", 19-1, pomlist.index(grunds[0])),  # slowest, left-most
+            2: Rotor("II", 7-1, pomlist.index(grunds[1])),  # middle
+            3: Rotor("IV", 12-1, pomlist.index(grunds[2])),  # fastest, right-most
+        }
+        reflector = Reflector("B")
         enigma = Enigma(
-            rotors = {
-                1: Rotor("VIII", 19-1, pomlist.index(grunds[0])),  # slowest, left-most
-                2: Rotor("II", 7-1, pomlist.index(grunds[1])),  # middle
-                3: Rotor("IV", 12-1, pomlist.index(grunds[2])),  # fastest, right-most
-            },
-            reflector = Reflector("B"),
+            rotors = rotors,
+            reflector = reflector,
             plugboard = Plugboard({})
         )    
         text = enigma.EDcrypt(self.ttc)
@@ -82,7 +84,7 @@ class cracker():
         myic = self.scorer.icscore(text)
         print ("Original IC / plain text (before heuristics): "+str(myic))
         startTime = time()     
-        steckerscoreIC,steckerscoreGRAM,steckerscoreAIC,steckerinfo = self.steckerHillClimbTest(enigma.rotors, enigma.reflector, myic,plugsIC,plugsGRAM)
+        steckerscoreIC,steckerscoreGRAM,steckerscoreAIC,steckerinfo = self.steckerHillClimbTest(rotors, reflector, myic,plugsIC,plugsGRAM)
         print ("Execution time is: %.3fs" % (time()-startTime))
         print ("\nScores\n"+"Original IC:"+str(myic)+"\nAfterwards IC:"+str(steckerscoreAIC)+"\nTrigram:"+str(steckerscoreGRAM))
         print ("End of heuristics\n\n")
