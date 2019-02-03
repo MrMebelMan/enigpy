@@ -82,7 +82,7 @@ class cracker():
         myic = self.scorer.icscore(text)
         print ("Original IC / plain text (before heuristics): "+str(myic))
         startTime = time()     
-        steckerscoreIC,steckerscoreGRAM,steckerscoreAIC,steckerinfo = self.steckerHillClimbTest(enigma, myic,plugsIC,plugsGRAM)
+        steckerscoreIC,steckerscoreGRAM,steckerscoreAIC,steckerinfo = self.steckerHillClimbTest(enigma.rotors, enigma.reflector, myic,plugsIC,plugsGRAM)
         print ("Execution time is: %.3fs" % (time()-startTime))
         print ("\nScores\n"+"Original IC:"+str(myic)+"\nAfterwards IC:"+str(steckerscoreAIC)+"\nTrigram:"+str(steckerscoreGRAM))
         print ("End of heuristics\n\n")
@@ -111,7 +111,7 @@ class cracker():
              
         #print (text)
 
-    def steckerHillClimbTest(self, enigma, score,plugsIC,plugsGRAM):
+    def steckerHillClimbTest(self, rotors: dict, reflector, score,plugsIC,plugsGRAM):
         # we'll try to hill-climb just the most used pairs
         mostusedletters = ["E","N","X","R"] # we will use 4 most used letters for the 1st run using IC
         mostusedletters2ndrun = ["S","T","A","H","D","U","L","C","G","M",
@@ -126,7 +126,11 @@ class cracker():
         best[0] = ""
         best[1] = ""
 
-        initial_enigma_setup = enigma
+        enigma = Enigma(
+            rotors = rotors,
+            reflector = reflector,
+            plugboard = Plugboard({})
+        )
 
         #print ("Top score: "+str(topscore))
         for i in range(plugsIC):  #find the first best pair out of most used letters
@@ -167,7 +171,13 @@ class cracker():
         if (bestpairscoreIC > score):
             # if we found something, we continue to hill-climb
 
-            enigma = initial_enigma_setup  # initial trigram score
+            # initial trigram score
+            enigma = Enigma(
+                rotors = rotors,
+                reflector = reflector,
+                plugboard = Plugboard({})
+            )
+
             text = enigma.EDcrypt(self.ttc)
             bestpairscoreGRAM = self.scorer.score(text)
 
@@ -202,7 +212,11 @@ class cracker():
         #print ((enigma.plugboard.wiring))
 
         # IC calculation after the 2nd step of hill climb
-        enigma = initial_enigma_setup
+        enigma = Enigma(
+            rotors = rotors,
+            reflector = reflector,
+            plugboard = Plugboard({})
+        )
         text = enigma.EDcrypt(self.ttc)
         afterwardsIC = self.scorer.icscore(text)
 
@@ -210,7 +224,7 @@ class cracker():
 
     
 
-    def steckerHillClimbTest2(self, enigma, score, plugs1, plugs2, plugs3):
+    def steckerHillClimbTest2(self, rotors: dict, reflector, score, plugs1, plugs2, plugs3):
         # we'll try to hill-climb just the most used pairs
         mostusedletters = ["E","N","X","R"] # we will use 4 most used letters for the 1st run using IC
         letters = ["A","B","C","D","E","F","G","H","I","J","K","L","M",
@@ -218,6 +232,12 @@ class cracker():
         
         topscore = score
         bestpairscore = score
+
+        enigma = Enigma(
+            rotors = rotors,
+            reflector = reflector,
+            plugboard = Plugboard({})
+        )
 
         #print ("Top score: "+str(topscore))
         for i in range(plugs1):  #find the first best pair out of most used letters
@@ -504,7 +524,7 @@ class crackerParallel():
                                             #self.q.put(strtowrite)
                                             '''
                                             #myscore = self.scorer.score(text)
-                                            steckerscoreIC,steckerscoreGRAM,steckerscoreAIC,steckerinfo = self.steckerHillClimbTest(rotors, reflectori, myic,plugs1run,plugs2run)
+                                            steckerscoreIC,steckerscoreGRAM,steckerscoreAIC,steckerinfo = self.steckerHillClimbTest(rotors, reflector, myic,plugs1run,plugs2run)
 
                                             #strtowrite="STECKER: "+str(steckerinfo)+"\n\n"
                                             #self.q.put(strtowrite)
