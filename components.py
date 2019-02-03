@@ -69,10 +69,9 @@ class reflector():
         self.setting=self.options.get(umkehrwalze,"")
         
 class plugboard():
-    
-    pairs = {}
 
     def __init__(self,steckerbrett):
+        self.pairs = {}
         self.pairs=self.setWiring(steckerbrett)
     
     def setWiring(self,steckerbrett):

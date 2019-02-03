@@ -2,7 +2,7 @@ from string import ascii_uppercase as pomlist
 
 class enigma():
 
-    mapping = dict((c, ord(c) - 65) for c in pomlist)
+    mapping = {c: ord(c) - 65 for c in pomlist}
 
     def __init__(self,rotor1,rotor2,rotor3,reflectori,plugboardi):
         self.rotor1=rotor1
@@ -28,13 +28,13 @@ class enigma():
             
             # doublestepagain2=False # magic
 
-            if (self.rotor3.step==13 and r3pos==26): 
+            if self.rotor3.step==13 and r3pos==26: 
                 stepagain2=True
 
-            if (self.rotor2.step==13 and r2pos+1==26): 
+            if self.rotor2.step==13 and r2pos+1==26: 
                 stepagain1=True 
             
-            if (r3pos==self.rotor3.step or stepagain2==True) or r2pos+1==self.rotor2.step or stepagain1==True: # or (double stepping of middle rotor)
+            if r3pos==self.rotor3.step or stepagain2==True or r2pos+1==self.rotor2.step or stepagain1==True: # or (double stepping of middle rotor)
                 r2pos+=1
                 #print("stepping middle")
 
