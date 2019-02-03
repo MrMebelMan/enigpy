@@ -6,7 +6,7 @@ class ngram_score(object):
     ngrams = {}
     L=0
     floor=0
-    # careful you dumbass! it won't work with multiple files!
+    # careful you dumbass! it won't work with different ngram files, just one!
 
     def __init__(self,ngramfile,sep=' '):
         ''' load a file containing ngrams and counts, calculate log probabilities and keep them in memory '''

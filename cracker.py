@@ -70,8 +70,8 @@ class cracker():
         text=enigmai.EDcrypt(self.ttc)
 
         myic=self.scorer.icscore(text)
-        print ("My IC"+str(myic))
-        steckerscoreIC,steckerscoreGRAM,steckerscoreAIC,steckerinfo==self.steckerHillClimbTest(rotor1,rotor2,rotor3,reflectori,myic,plugsIC,plugsGRAM)
+        print ("My IC: "+str(myic))
+        steckerscoreIC,steckerscoreGRAM,steckerscoreAIC,steckerinfo=self.steckerHillClimbTest(rotor1,rotor2,rotor3,reflectori,myic,plugsIC,plugsGRAM)
         print ("\nScores\n"+"Original IC:"+str(steckerscoreIC)+"\nAfterwards IC:"+str(steckerscoreAIC)+"\nTrigram:"+str(steckerscoreGRAM))
 
 
@@ -87,10 +87,10 @@ class cracker():
                 print ("BINGO IC!!! "+str(steckerscoreAIC))
                 print ("CHECKTHISOUT: " +text+"\n")
 
-            if (steckerscoreGRAM>-2900):
+            if (steckerscoreGRAM>-1500):
                 print ("CHECKTHISOUT: " +text+"\n")
                 print ("BINGO GRAM!!! GRAM:"+str(steckerscoreGRAM)) # Trigram score
-                rint ("BINGO GRAM!!! ORIC:"+str(myic))   # original IC score
+                print ("BINGO GRAM!!! ORIC:"+str(myic))   # original IC score
                 print ("BINGO GRAM!!! BEIC:"+str(steckerscoreIC))   # IC score after first 4 plugs
                 print ("BINGO GRAM!!! AFIC:"+str(steckerscoreAIC)+"\n\n")   # IC sore after Trigrams applied
              
@@ -120,15 +120,14 @@ class cracker():
             for firstletter in mostusedletters:
                 for secondletter in letters: #check every combination of the most used letters one by one
                     if (secondletter != firstletter):
-                        #plugboardtest=dict(plugboardi.pairs)
                         plugboardtestpairs={firstletter:secondletter}
                         plugboardtestdict = dict(plugboardtestpairs, **plugboardi.pairs)
                         plugboardtest=plugboard(plugboardtestdict)
-                        print (plugboardtest.pairs)
+                        #print (plugboardtest.pairs)
                         enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardtest)    
                         text=enigmai.EDcrypt(self.ttc)
                         myscore=self.scorer.icscore(text)
-                        print (myscore)
+                        #print (myscore)
                         if (myscore>bestpairscoreIC):
                             bestpairscoreIC=myscore
                             best=[firstletter,secondletter]
@@ -161,11 +160,7 @@ class cracker():
 
             enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)  # initial trigram score
             text = enigmai.EDcrypt(self.ttc)
-            print ("TEXT:", text)
             bestpairscoreGRAM = self.scorer.score(text)
-            print (bestpairscoreGRAM)
-            print (self.scorer.L)
-            print (self.scorer.floor)
 
             for i in range(plugsGRAM):
                 for firstletter in mostusedletters2ndrun:
