@@ -24,7 +24,6 @@ class cracker():
         return text
 
     def test(self):
-        print ("testSIMPLE")
         #print (self.grundStellung)
         grunds=self.decodeGrundStellung()
 
@@ -35,10 +34,11 @@ class cracker():
         rotor3=rotor("IV",12-1,pomlist.index(grunds[2]))  #fastest, right-most
         enigmai = enigma (rotor1, rotor2, rotor3, reflectori, plugboardi)    
         text=enigmai.EDcrypt(self.ttc)
-        print (text)
+        print ("DECRYPTED TEXT: "+text)
+        print ("STECKERS: {'B':'D','C':'O','E':'I','G':'L','J':'S','K':'T','N':'V','P':'M','Q':'R','W':'Z'}")  
 
     def testHillClimb(self):
-        print ("testHillClimb")
+        #print ("testHillClimb")
         bestoftherun=-10000
         bestoftherunIC=-10000
         bestoftherunGRAM=-10000
@@ -70,29 +70,32 @@ class cracker():
         text=enigmai.EDcrypt(self.ttc)
 
         myic=self.scorer.icscore(text)
-        print ("My IC: "+str(myic))
+        print ("Original IC / plain text (before heuristics): "+str(myic))
         steckerscoreIC,steckerscoreGRAM,steckerscoreAIC,steckerinfo=self.steckerHillClimbTest(rotor1,rotor2,rotor3,reflectori,myic,plugsIC,plugsGRAM)
-        print ("\nScores\n"+"Original IC:"+str(steckerscoreIC)+"\nAfterwards IC:"+str(steckerscoreAIC)+"\nTrigram:"+str(steckerscoreGRAM))
+        print ("\nScores\n"+"Original IC:"+str(myic)+"\nAfterwards IC:"+str(steckerscoreAIC)+"\nTrigram:"+str(steckerscoreGRAM))
+        print ("End of heuristics\n\n")
 
-
+        print ("Heuristics results:")
         if ((steckerscoreIC>bestoftherunIC and steckerscoreAIC>0.05) or (steckerscoreGRAM>bestoftherunGRAM and steckerscoreAIC>0.06)):
                                                 #print ("CHECKTHISOUT: " +text+"\n")
             bestoftherunIC=steckerscoreIC
             bestoftherunGRAM=steckerscoreGRAM
-            print ("\nScores\n"+"Original IC:"+str(steckerscoreIC)+"\nAfterwards IC:"+str(steckerscoreAIC)+"\nTrigram:"+str(steckerscoreGRAM))
-            print (str(steckerinfo))
-            print ("TEXT: " +text+"\n")
+            #print ("\nScores\n"+"Original IC:"+str(steckerscoreIC)+"\nAfterwards IC:"+str(steckerscoreAIC)+"\nTrigram:"+str(steckerscoreGRAM))
+            #print (str(steckerinfo))
+            #print ("TEXT: " +text+"\n")
 
             if (steckerscoreAIC>0.065):                                         
                 print ("BINGO IC!!! "+str(steckerscoreAIC))
-                print ("CHECKTHISOUT: " +text+"\n")
+                print ("BEST DESCRYPTED TEXT (IC METHOD): " +text+"\n")    
+                print ("STECKERS:"+str(steckerinfo))
 
             if (steckerscoreGRAM>-1500):
-                print ("CHECKTHISOUT: " +text+"\n")
-                print ("BINGO GRAM!!! GRAM:"+str(steckerscoreGRAM)) # Trigram score
-                print ("BINGO GRAM!!! ORIC:"+str(myic))   # original IC score
-                print ("BINGO GRAM!!! BEIC:"+str(steckerscoreIC))   # IC score after first 4 plugs
-                print ("BINGO GRAM!!! AFIC:"+str(steckerscoreAIC)+"\n\n")   # IC sore after Trigrams applied
+                print ("BINGO GRAM!!! GRAM: "+str(steckerscoreGRAM)) # Trigram score
+                print ("BINGO GRAM!!! ORIC: "+str(myic))   # original IC score
+                print ("BINGO GRAM!!! BEIC: "+str(steckerscoreIC))   # IC score after first 4 plugs
+                print ("BINGO GRAM!!! AFIC: "+str(steckerscoreAIC)+"\n")   # IC sore after Trigrams applied
+                print ("BEST DESCRYPTED TEXT (GRAM METHOD): " +text)  
+                print ("STECKERS:"+str(steckerinfo))                
              
         #print (text)
 
@@ -611,17 +614,21 @@ def final(subset,q):
     crackerF.ultimate_MP_method_1()
 
 def simpleTest(grundstellung,scrambledtext):
-    print ("simpleTest")
+   
+    print ("---------- simple test - Right decryption: ----------------")
     scorer_tri=ngram_score('grams/german_trigrams1941.txt')
     scorer=scorer_tri
     crackerTest=cracker(grundstellung,scrambledtext,scorer)
     crackerTest.test()
+    print ("-----------------------------------------------------------")
+    print ("")
 
 def hillTest(grundstellung,scrambledtext):
-    print ("hillTest")
+    print ("-------- hill test - work in progress heuristics: ---------")
     #scrambled="KYYUGIWKSEYPQDFYPIJNTGNDIAHNBROXDIKEKPTMOUHBEJRRJPVBAOCUZRDFSAZDCNUNNMRPCCMCHJBWSTIKZIREBBVJQAXZARIYVANIJVOLDNBUMXXFNZVRQEGOYXEVVNMPWEBSKEUTJJOKPBKLHIYWGNFFPXKIEWSNTLMDKYIDMOFPTDFJAZOHVVQETNIPVZGTUMYJCMSEAKTYELPZUNHEYFCLAADYPEEXMHQMVAVZZDOIMGLERBBLATHQJIYCBSUPVVTRADCRDDSTYIXYFEAFZYLNZZDPNNXXZJNRCWEXMTYRJOIAOEKNRXGXPNMTDGKFZDSYHMUJAPOBGANCRCZTMEPXESDZTTJZGNGQRMKNCZNAFMDAXXTJSRTAZTZKRTOXHAHTNPEVNAAVUZMHLPXLMSTWELSOBCTMBKGCJKMDPDQQGCZHMIOCGRPDJEZTYVDQGNPUKCGKFFWMNKWPSCLENWHUEYCLYVHZNKNVSCZXUXDPZBDPSYODLQRLCGHARLFMMTPOCUMOQLGJJAVXHZZVBFLXHNNEJXS" 
     scorer_tri=ngram_score('grams/german_trigrams1941.txt')
     scorer=scorer_tri
     crackerTest=cracker(grundstellung,scrambledtext,scorer)
     crackerTest.testHillClimb()
+    print ("-----------------------------------------------------------")
 
