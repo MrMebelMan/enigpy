@@ -3,6 +3,7 @@ from crypto import enigma
 from scorers import ngram_score
 from datetime import datetime
 from string import ascii_uppercase as pomlist
+from time import time
 
 class cracker():
     
@@ -71,7 +72,9 @@ class cracker():
 
         myic=self.scorer.icscore(text)
         print ("Original IC / plain text (before heuristics): "+str(myic))
+        startTime = time()     
         steckerscoreIC,steckerscoreGRAM,steckerscoreAIC,steckerinfo=self.steckerHillClimbTest(rotor1,rotor2,rotor3,reflectori,myic,plugsIC,plugsGRAM)
+        print ("Execution time is: %.3fs" % (time()-startTime))
         print ("\nScores\n"+"Original IC:"+str(myic)+"\nAfterwards IC:"+str(steckerscoreAIC)+"\nTrigram:"+str(steckerscoreGRAM))
         print ("End of heuristics\n\n")
 
